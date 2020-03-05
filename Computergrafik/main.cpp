@@ -76,6 +76,7 @@ int main()
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("vertex.vs", "fragment.fs");
+    Shader cubeShader("cube.vs", "cube.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -123,9 +124,51 @@ int main()
         -1.0f,  0.2f, -0.5f,  0.0f, 1.0f
     };
 
+    float cube[] = {
+    -0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
+     0.03f,  0.22f, -0.03f,  1.0f, 0.0f,
+     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
+     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
+    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
+    -0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
 
+    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
+    -0.03f,  0.3f,  0.03f,  0.0f, 1.0f,
+    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
 
-    unsigned int VBO, VAO;
+    -0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+    -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
+    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+    -0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+
+     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
+     0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+     0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+     0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+
+    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+     0.03f,  0.22f, -0.03f,  1.0f, 1.0f,
+     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
+     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
+    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+
+    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
+     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+    -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,
+    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f
+    };
+
+    unsigned int VBO, VAO,VBO2,VAO2;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -174,7 +217,17 @@ int main()
     ourShader.use();
     ourShader.setInt("texture1", 0);
 
+    glGenVertexArrays(1, &VAO2);
+    glGenBuffers(1, &VBO2);
 
+    glBindVertexArray(VAO2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -217,6 +270,15 @@ int main()
         ourShader.setMat4("model", model);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        cubeShader.use();
+        ourShader.setMat4("projection", projection);
+        cubeShader.setMat4("view", view);
+
+        glBindVertexArray(VAO2);
+        glm::mat4 model2 = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        model2 = glm::translate(model2, glm::vec3(0.9f, 0.0f, 0.4f));
+        cubeShader.setMat4("model", model2);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -228,6 +290,8 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO2);
+    glDeleteBuffers(1, &VBO2);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
