@@ -122,8 +122,8 @@ int main()
         -1.0f,  0.2f,  0.5f,  0.0f, 0.0f,
         -1.0f,  0.2f, -0.5f,  0.0f, 1.0f
     };
-  
-   
+
+
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -168,7 +168,7 @@ int main()
     {
         std::cout << "Failed to load texture" << std::endl;
     }
-   
+
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
     ourShader.use();
@@ -197,7 +197,7 @@ int main()
         // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
-        
+
 
         // activate shader
         ourShader.use();
@@ -211,13 +211,13 @@ int main()
         ourShader.setMat4("view", view);
 
         glBindVertexArray(VAO);
-        
-            glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-            model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            ourShader.setMat4("model", model);
-            
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-           
+
+        glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        ourShader.setMat4("model", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
