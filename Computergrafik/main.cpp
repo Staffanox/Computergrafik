@@ -125,50 +125,56 @@ int main()
     };
 
     float cube[] = {
-    -0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
-     0.03f,  0.22f, -0.03f,  1.0f, 0.0f,
-     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
-    -0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
+     //right side
+    -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+     0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
 
-    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
-     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
-    -0.03f,  0.3f,  0.03f,  0.0f, 1.0f,
-    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+    //left side
+    -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+     0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
 
-    -0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-    -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-    -0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+    //front
+    -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+    -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+    -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+    -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+    -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
 
-     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-     0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-     0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-     0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+    //back
+     0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+     0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+     0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+     0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
 
-    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-     0.03f,  0.22f, -0.03f,  1.0f, 1.0f,
-     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-     0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-    -0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-    -0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+     //bottom
+    -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+    -0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+    -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
 
-    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
-     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-     0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-    -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,
-    -0.03f,  0.3f, -0.03f,  0.0f, 1.0f
+    //top
+    -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+     0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+    -0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+    -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
     };
 
-    unsigned int VBO, VAO,VBO2,VAO2;
+    unsigned int VBO, VAO, VBO2, VAO2;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
@@ -201,7 +207,7 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load(("C:\\Users\\Steven\\Desktop\\Computergrafik\\Dependencies\\resources\\container.jpg"), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(("C:\\Users\\Steven\\Desktop\\Computergrafik\\Dependencies\\resources\\Container.jpg"), &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -226,8 +232,11 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
