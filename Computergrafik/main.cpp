@@ -35,6 +35,9 @@ bool sprintPressed = false;
 float move_unit = 0.1f;
 float cube_posX = 0, cube_posY = 0, cube_posZ = 0;
 
+// lighting
+glm::vec3 lightPos(0.0f, 0.5f, 0.0f);
+
 int main()
 {
 	// glfw: initialize and configure
@@ -81,6 +84,8 @@ int main()
 	// ------------------------------------
 	Shader ourShader("vertex.vs", "fragment.fs");
 	Shader cubeShader("cube.vs", "cube.fs");
+	Shader lampShader("lamp.vs", "lamp.fs");
+
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -130,20 +135,20 @@ int main()
 
 	float cube[] = {
 		//right side
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
+	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
 
 	   //left side
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
+		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
 
 	   //front
 	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
@@ -179,7 +184,7 @@ int main()
 	};
 
 
-	unsigned int VBO, VAO, VBO2, VAO2;
+	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
@@ -228,23 +233,36 @@ int main()
 	ourShader.use();
 	ourShader.setInt("texture1", 0);
 
-	glGenVertexArrays(1, &VAO2);
-	glGenBuffers(1, &VBO2);
 
-	glBindVertexArray(VAO2);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_DYNAMIC_DRAW);
-	//Static to dynamic: "ensures the graphics card will place the data in memory that allows for faster writes". 
-	//Positiondata should change frequently (by user interaction)
+
+	unsigned int cubeVBO, cubeVAO;
+	glGenVertexArrays(1, &cubeVAO);
+	glGenBuffers(1, &VBO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+
+	glBindVertexArray(cubeVAO);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	// color attribute
+	// normal attribute
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -255,8 +273,7 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-
-		std::cout << deltaTime << std::endl;
+		
 
 		// input
 		// -----
@@ -264,14 +281,14 @@ int main()
 
 		// render
 		// ------
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// bind textures on corresponding texture units
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
-
+		//board
 		// activate shader
 		ourShader.use();
 
@@ -288,16 +305,50 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
-
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+		//changing lightpos over time
+		lightPos.x =  cube_posX- ((sin(glfwGetTime()) / 3.0f));
+		lightPos.y = 0.5f - abs(sin(glfwGetTime()) / 3);
+		lightPos.z = cube_posZ -((sin(glfwGetTime())/ 3.0f));
+
+
+		std::cout << lightPos.y << std::endl;
+		//std::cout << lightPos.z << std::endl;
+		//std::cout << lightPos.z << std::endl;
+
+
+		//cube
+		// be sure to activate shader when setting uniforms/drawing objects
 		cubeShader.use();
-		ourShader.setMat4("projection", projection);
+		cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+		cubeShader.setVec3("lightPos", lightPos);
+		cubeShader.setVec3("viewPos", camera.Position);
+
+		// view/projection transformations
+		cubeShader.setMat4("projection", projection);
 		cubeShader.setMat4("view", view);
 
-		glBindVertexArray(VAO2);
+		// world transformation
 		glm::mat4 cube_model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		cube_model = glm::translate(cube_model, glm::vec3(cube_posX, cube_posY, cube_posZ));
 		cubeShader.setMat4("model", cube_model);
+
+		// render the cube
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		lampShader.use();
+		lampShader.setMat4("projection", projection);
+		lampShader.setMat4("view", view);
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+		lampShader.setMat4("model", model);
+
+		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
@@ -311,8 +362,8 @@ int main()
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &VAO2);
-	glDeleteBuffers(1, &VBO2);
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteBuffers(1, &cubeVBO);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
@@ -385,10 +436,11 @@ void processInput(GLFWwindow* window)
 			move_unit = 0.05f;
 			//std::cout << move_unit << std::endl;
 
-			if ((float)glfwGetTime() >= sprintTime + 8.0f) {
+			if ((float)glfwGetTime() >= sprintTime + 6.5f) {
 				sprintPressed = false;
 				move_unit = 0.1f;
-				sprintTime = 0;
+				sprintTime = 0.0f;
+				currentSprintTime = 0.0f;
 				//std::cout << move_unit << std::endl;
 
 			}
