@@ -28,8 +28,11 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
+float sprintTime = 0.0;
+float currentSprintTime = 0.0;
+bool sprintPressed = false;
 //cube
-float move_unit = 0.001f;
+float move_unit = 0.1f;
 float cube_posX = 0, cube_posY = 0, cube_posZ = 0;
 
 int main()
@@ -126,48 +129,55 @@ int main()
 	};
 
 	float cube[] = {
-	-0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
-	 0.03f,  0.22f, -0.03f,  1.0f, 0.0f,
-	 0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-	 0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-	-0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
-	-0.03f,  0.22f, -0.03f,  0.0f, 0.0f,
+		//right side
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
 
-	-0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-	 0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-	 0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
-	 0.03f,  0.3f,  0.03f,  1.0f, 1.0f,
-	-0.03f,  0.3f,  0.03f,  0.0f, 1.0f,
-	-0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
+	   //left side
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
 
-	-0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-	-0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-	-0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-	-0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-	-0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-	-0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+	   //front
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
 
-	 0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-	 0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-	 0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-	 0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-	 0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-	 0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
+	   //back
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
 
-	-0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
-	 0.03f,  0.22f, -0.03f,  1.0f, 1.0f,
-	 0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-	 0.03f,  0.22f,  0.03f,  1.0f, 0.0f,
-	-0.03f,  0.22f,  0.03f,  0.0f, 0.0f,
-	-0.03f,  0.22f, -0.03f,  0.0f, 1.0f,
+		//bottom
+	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+	   -0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
+	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
 
-	-0.03f,  0.3f, -0.03f,  0.0f, 1.0f,
-	 0.03f,  0.3f, -0.03f,  1.0f, 1.0f,
-	 0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-	 0.03f,  0.3f,  0.03f,  1.0f, 0.0f,
-	-0.03f,  0.3f,  0.03f,  0.0f, 0.0f,
-	-0.03f,  0.3f, -0.03f,  0.0f, 1.0f
+	   //top
+	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+		0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+	   -0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
+	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
 	};
+
 
 	unsigned int VBO, VAO, VBO2, VAO2;
 	glGenVertexArrays(1, &VAO);
@@ -229,8 +239,12 @@ int main()
 	//Positiondata should change frequently (by user interaction)
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	// color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -240,6 +254,9 @@ int main()
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+
+
+		std::cout << deltaTime << std::endl;
 
 		// input
 		// -----
@@ -307,6 +324,7 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
@@ -321,26 +339,67 @@ void processInput(GLFWwindow* window)
 
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		cube_posZ -= move_unit;
+		cube_posZ -= move_unit*deltaTime;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		cube_posZ += move_unit;
+		cube_posZ += move_unit * deltaTime;
 		//move down
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		cube_posX -= move_unit;
+		cube_posX -= move_unit * deltaTime;
 		//move left
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		cube_posX += move_unit;
+		cube_posX += move_unit * deltaTime;
 		//move right
 	}
 
+	//speed button for cube
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+		//std::cout << currentSprintTime << std::endl;
+		if (sprintPressed == false) {
+			currentSprintTime = (float) glfwGetTime();
+			sprintPressed = true;
+		}
+		sprintTime = (float)glfwGetTime();
+
+		//speed during sprint
+		if (currentSprintTime+5.0f >= sprintTime) {
+			move_unit = 0.5f;
+		}
+		//speed after sprint (fatigue)
+		else {
+			move_unit = 0.01f;
+		}
+		//std::cout << move_unit << std::endl;
+	}
+	//reset to normal speed after release
+	if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)&& (sprintPressed == true)) {
+		//speed after sprint (recovery)
+		if (((float)glfwGetTime() >= sprintTime + 5.0f)) {
+			move_unit = 0.05f;
+			//std::cout << move_unit << std::endl;
+
+			if ((float)glfwGetTime() >= sprintTime + 8.0f) {
+				sprintPressed = false;
+				move_unit = 0.1f;
+				sprintTime = 0;
+				//std::cout << move_unit << std::endl;
+
+			}
+		}
+		else {
+			move_unit = 0.1f;
+			//std::cout << move_unit << std::endl;
+
+		}
+		
+	}
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
