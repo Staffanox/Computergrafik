@@ -19,7 +19,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 2.65f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -33,10 +33,10 @@ float currentSprintTime = 0.0;
 bool sprintPressed = false;
 //cube
 float move_unit = 0.1f;
-float cube_posX = 0, cube_posY = 0, cube_posZ = 0;
+glm::vec3 cubePos = glm::vec3(-0.4299f, -1.1f, 0.2337f);
 
-// lighting
-glm::vec3 lightPos(0.0f, 0.5f, 0.0f);
+
+
 
 int main()
 {
@@ -151,20 +151,20 @@ int main()
 	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
 
 	   //front
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
+	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,1.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
+	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
+	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
+	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
 
 	   //back
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,0.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,0.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,0.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
+		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,1.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
+		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
+		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
+		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
 
 		//bottom
 	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
@@ -182,7 +182,12 @@ int main()
 	   -0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
 	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
 	};
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.0f, -1.1f, 0.0f),
+		glm::vec3(0.0f, -1.1f, 0.0f),
+		glm::vec3(0.0f,-1.1f,0.45f)
 
+	};
 
 	unsigned int VBO, VAO;
 	glGenVertexArrays(1, &VAO);
@@ -303,51 +308,113 @@ int main()
 		glBindVertexArray(VAO);
 
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.5f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.5f, 0.0f, 0.0f));
 		ourShader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
+
+
 		//changing lightpos over time
-		lightPos.x =  cube_posX- ((sin(glfwGetTime()) / 3.0f));
-		lightPos.y = 0.5f - abs(sin(glfwGetTime()) / 3);
-		lightPos.z = cube_posZ -((sin(glfwGetTime())/ 3.0f));
+		pointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
+		//cubePos.y + 0.22 round about the middlepoint, since rotation of world
+		pointLightPositions[0].y = (cubePos.y + 0.22f);
+		pointLightPositions[0].z = 0.5f - abs(sin(glfwGetTime()) / 5.0f);
 
+		pointLightPositions[1].x = cubePos.x;
+		pointLightPositions[1].y = cubePos.y - ((sin(glfwGetTime()) / 2.0f));
+		pointLightPositions[1].z = pointLightPositions[0].z;
 
-		std::cout << lightPos.y << std::endl;
-		//std::cout << lightPos.z << std::endl;
-		//std::cout << lightPos.z << std::endl;
-
+		pointLightPositions[2].x = cubePos.x;
+		pointLightPositions[2].y = cubePos.y +0.22f;
+		
 
 		//cube
-		// be sure to activate shader when setting uniforms/drawing objects
 		cubeShader.use();
-		cubeShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		cubeShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-		cubeShader.setVec3("lightPos", lightPos);
+		//cubeShader.setVec3("light.position", lightPos);
+		//cubeShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
 		cubeShader.setVec3("viewPos", camera.Position);
+
+		// directional light
+		//cubeShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+		//cubeShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+		//cubeShader.setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
+		//cubeShader.setVec3("dirLight.specular", 0.2f, 0.2f, 0.2f);
+		// point light 1
+		glm::vec3 lightColor;
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.05f);
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
+		cubeShader.setVec3("light.ambient", ambientColor);
+		cubeShader.setVec3("light.diffuse", diffuseColor);
+		cubeShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+		cubeShader.setVec3("pointLights[0].ambient", ambientColor);
+		cubeShader.setVec3("pointLights[0].diffuse", diffuseColor);
+		cubeShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
+		cubeShader.setFloat("pointLights[0].constant", 1.0f);
+		cubeShader.setFloat("pointLights[0].linear", 0.09);
+		cubeShader.setFloat("pointLights[0].quadratic", 0.032);
+		// point light 2
+		cubeShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+		cubeShader.setVec3("pointLights[1].ambient", ambientColor);
+		cubeShader.setVec3("pointLights[1].diffuse", diffuseColor);
+		cubeShader.setVec3("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
+		cubeShader.setFloat("pointLights[1].constant", 1.0f);
+		cubeShader.setFloat("pointLights[1].linear", 0.09);
+		cubeShader.setFloat("pointLights[1].quadratic", 0.032);
+
+		// point light 3
+		cubeShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+		cubeShader.setVec3("pointLights[2].ambient", ambientColor);
+		cubeShader.setVec3("pointLights[2].diffuse", diffuseColor);
+		cubeShader.setVec3("pointLights[2].specular", 0.5f, 0.5f, 0.5f);
+		cubeShader.setFloat("pointLights[2].constant", 1.0f);
+		cubeShader.setFloat("pointLights[2].linear", 0.09);
+		cubeShader.setFloat("pointLights[2].quadratic", 0.032);
+
+		// material properties
+		cubeShader.setVec3("material.ambient", 0.25f, 0.20725f, 0.20725f);
+		cubeShader.setVec3("material.diffuse", 1.0f, 0.829f, 0.829f);
+		cubeShader.setVec3("material.specular", 0.296648f, 0.296648f, 0.296648f); // specular lighting doesn't have full effect on this object's material
+		cubeShader.setFloat("material.shininess", 11.264f);
 
 		// view/projection transformations
 		cubeShader.setMat4("projection", projection);
 		cubeShader.setMat4("view", view);
 
+
 		// world transformation
 		glm::mat4 cube_model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		cube_model = glm::translate(cube_model, glm::vec3(cube_posX, cube_posY, cube_posZ));
+		cube_model = glm::translate(cube_model, glm::vec3(cubePos));
 		cubeShader.setMat4("model", cube_model);
 
 		// render the cube
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		// also draw the lamp object(s)
 		lampShader.use();
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
-		lampShader.setMat4("model", model);
 
+		// we now draw as many light bulbs as we have point lights.
+		glBindVertexArray(lightVAO);
+
+		/* uncomment to see light sources
+		for (unsigned int i = 0; i < 3; i++)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+			lampShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		*/
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -371,7 +438,7 @@ int main()
 	return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// process all input query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
@@ -390,23 +457,23 @@ void processInput(GLFWwindow* window)
 
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		cube_posZ -= move_unit*deltaTime;
+		cubePos.y += move_unit*deltaTime;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-		cube_posZ += move_unit * deltaTime;
+		cubePos.y -= move_unit * deltaTime;
 		//move down
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		cube_posX -= move_unit * deltaTime;
+		cubePos.x -= move_unit * deltaTime;
 		//move left
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		cube_posX += move_unit * deltaTime;
+		cubePos.x += move_unit * deltaTime;
 		//move right
 	}
 
