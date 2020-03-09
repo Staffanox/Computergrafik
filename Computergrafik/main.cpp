@@ -6,13 +6,26 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <shader.h>
 #include <camera.h>
-
+#include <windows.h>
+#include <conio.h>
 #include <iostream>
+#include <stdio.h>
+#include <irrKlang.h>
 
+using namespace irrklang;
+
+
+#pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
+
+
+ // error starting up the engine
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+
+
+const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -40,13 +53,19 @@ glm::vec3 cubePos = glm::vec3(-0.4299f, -1.1f, 0.2337f);
 
 int main()
 {
+
+	
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// start the sound engine with default parameters
+	ISoundEngine* engine = createIrrKlangDevice();
 
+	if (!engine)
+		return 100; // error starting up the engine
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
@@ -82,7 +101,7 @@ int main()
 
 	// build and compile our shader zprogram
 	// ------------------------------------
-	Shader ourShader("vertex.vs", "fragment.fs");
+	Shader boardShader("vertex.vs", "fragment.fs");
 	Shader cubeShader("cube.vs", "cube.fs");
 	Shader lampShader("lamp.vs", "lamp.fs");
 
@@ -90,47 +109,48 @@ int main()
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	float board[] = {
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f,
-		 1.0f, -0.2f, -0.5f,  1.0f, 0.0f,
-		 1.0f,  0.2f, -0.5f,  1.0f, 1.0f,
-		 1.0f,  0.2f, -0.5f,  1.0f, 1.0f,
-		-1.0f,  0.2f, -0.5f,  0.0f, 1.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f,
+		//position			  //normals           //textures  
+		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f,
-		 1.0f, -0.2f,  0.5f,  1.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  1.0f, 1.0f,
-		 1.0f,  0.2f,  0.5f,  1.0f, 1.0f,
-		-1.0f,  0.2f,  0.5f,  0.0f, 1.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f,
+		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-		-1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
-		-1.0f,  0.2f, -0.5f,  1.0f, 1.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f,
-		-1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
+		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+ 		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
 
-		 1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
-		 1.0f,  0.2f, -0.5f,  1.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
-		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
 
-		-1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  1.0f, 1.0f,
-		 1.0f, -0.2f,  0.5f,  1.0f, 0.0f,
-		 1.0f, -0.2f,  0.5f,  1.0f, 0.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 1.0f,
+		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
 
-		-1.0f,  0.2f, -0.5f,  0.0f, 1.0f,
-		 1.0f,  0.2f, -0.5f,  1.0f, 1.0f,
-		 1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  1.0f, 0.0f,
-		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f,
-		-1.0f,  0.2f, -0.5f,  0.0f, 1.0f
+		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f
 	};
 
 	float cube[] = {
@@ -167,12 +187,12 @@ int main()
 		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
 
 		//bottom
-	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
-	   -0.03f,  0.22f,  0.03f,  1.0f, 1.0f,1.0f,
-	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,1.0f,
+	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
+		0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
+		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
+		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
+	   -0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
+	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
 
 	   //top
 	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
@@ -182,7 +202,7 @@ int main()
 	   -0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
 	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
 	};
-	glm::vec3 pointLightPositions[] = {
+	glm::vec3 cubePointLightPositions[] = {
 		glm::vec3(0.0f, -1.1f, 0.0f),
 		glm::vec3(0.0f, -1.1f, 0.0f),
 		glm::vec3(0.0f,-1.1f,0.45f)
@@ -198,17 +218,18 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(board), board, GL_STATIC_DRAW);
 
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glBindVertexArray(VAO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 
 	// load and create a texture 
 	// -------------------------
-	unsigned int texture1, texture2;
+	unsigned int texture1;
 	// texture 1
 	// ---------
 	glGenTextures(1, &texture1);
@@ -235,8 +256,8 @@ int main()
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
-	ourShader.use();
-	ourShader.setInt("texture1", 0);
+	boardShader.use();
+	boardShader.setInt("texture1", 0);
 
 
 
@@ -267,6 +288,12 @@ int main()
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	
+
+	//Play background music during game
+	engine->setSoundVolume(0.01f);
+	engine->play2D(musicSrc, GL_TRUE);
+	
 
 	// render loop
 	// -----------
@@ -295,64 +322,70 @@ int main()
 
 		//board
 		// activate shader
-		ourShader.use();
+
+		boardShader.use();
+
+		// directional light
+
+		boardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -5.5f);
+		boardShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
+		boardShader.setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
+		boardShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
+
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		ourShader.setMat4("projection", projection);
+		boardShader.setMat4("projection", projection);
 
 		// camera/view transformation
 		glm::mat4 view = camera.GetViewMatrix();
-		ourShader.setMat4("view", view);
+		boardShader.setMat4("view", view);
 
 		glBindVertexArray(VAO);
 
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.5f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.5f, 0.0f, 0.0f));
-		ourShader.setMat4("model", model);
+		boardShader.setMat4("model", model);
+
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 
 
 		//changing lightpos over time
-		pointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
+		cubePointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
+
 		//cubePos.y + 0.22 round about the middlepoint, since rotation of world
-		pointLightPositions[0].y = (cubePos.y + 0.22f);
-		pointLightPositions[0].z = 0.5f - abs(sin(glfwGetTime()) / 5.0f);
 
-		pointLightPositions[1].x = cubePos.x;
-		pointLightPositions[1].y = cubePos.y - ((sin(glfwGetTime()) / 2.0f));
-		pointLightPositions[1].z = pointLightPositions[0].z;
+		cubePointLightPositions[0].y = (cubePos.y + 0.22f);
+		cubePointLightPositions[0].z = 0.5f - abs(sin(glfwGetTime()) / 5.0f);
 
-		pointLightPositions[2].x = cubePos.x;
-		pointLightPositions[2].y = cubePos.y +0.22f;
+		cubePointLightPositions[1].x = cubePos.x;
+		cubePointLightPositions[1].y = cubePos.y - ((sin(glfwGetTime()) / 2.0f));
+		cubePointLightPositions[1].z = cubePointLightPositions[0].z;
+
+		cubePointLightPositions[2].x = cubePos.x;
+		cubePointLightPositions[2].y = cubePos.y +0.22f;
 		
 
 		//cube
 		cubeShader.use();
-		//cubeShader.setVec3("light.position", lightPos);
-		//cubeShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+		
 		cubeShader.setVec3("viewPos", camera.Position);
 
-		// directional light
-		//cubeShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-		//cubeShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-		//cubeShader.setVec3("dirLight.diffuse", 1.0f, 1.0f, 1.0f);
-		//cubeShader.setVec3("dirLight.specular", 0.2f, 0.2f, 0.2f);
-		// point light 1
+	
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
 		lightColor.y = sin(glfwGetTime() * 0.7f);
 		lightColor.z = sin(glfwGetTime() * 1.3f);
 
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.05f);
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.35f);
+		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.1f);
 		cubeShader.setVec3("light.ambient", ambientColor);
 		cubeShader.setVec3("light.diffuse", diffuseColor);
-		cubeShader.setVec3("pointLights[0].position", pointLightPositions[0]);
+		cubeShader.setVec3("pointLights[0].position", cubePointLightPositions[0]);
 		cubeShader.setVec3("pointLights[0].ambient", ambientColor);
 		cubeShader.setVec3("pointLights[0].diffuse", diffuseColor);
 		cubeShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
@@ -360,7 +393,7 @@ int main()
 		cubeShader.setFloat("pointLights[0].linear", 0.09);
 		cubeShader.setFloat("pointLights[0].quadratic", 0.032);
 		// point light 2
-		cubeShader.setVec3("pointLights[1].position", pointLightPositions[1]);
+		cubeShader.setVec3("pointLights[1].position", cubePointLightPositions[1]);
 		cubeShader.setVec3("pointLights[1].ambient", ambientColor);
 		cubeShader.setVec3("pointLights[1].diffuse", diffuseColor);
 		cubeShader.setVec3("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
@@ -369,9 +402,9 @@ int main()
 		cubeShader.setFloat("pointLights[1].quadratic", 0.032);
 
 		// point light 3
-		cubeShader.setVec3("pointLights[2].position", pointLightPositions[2]);
+		cubeShader.setVec3("pointLights[2].position", cubePointLightPositions[2]);
 		cubeShader.setVec3("pointLights[2].ambient", ambientColor);
-		cubeShader.setVec3("pointLights[2].diffuse", diffuseColor);
+		cubeShader.setVec3("pointLights[2].diffuse", diffuseColorTopDown);
 		cubeShader.setVec3("pointLights[2].specular", 0.5f, 0.5f, 0.5f);
 		cubeShader.setFloat("pointLights[2].constant", 1.0f);
 		cubeShader.setFloat("pointLights[2].linear", 0.09);
@@ -405,16 +438,16 @@ int main()
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
 
-		/* uncomment to see light sources
-		for (unsigned int i = 0; i < 3; i++)
+		 //uncomment to see light sources
+		/*for (unsigned int i = 0; i < 3; i++)
 		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLightPositions[i]);
+			model = glm::translate(model, cubePointLightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
 			lampShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-		*/
+		}*/
+		
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -431,7 +464,7 @@ int main()
 	glDeleteBuffers(1, &VBO);
 	glDeleteVertexArrays(1, &cubeVAO);
 	glDeleteBuffers(1, &cubeVBO);
-
+	engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
@@ -464,17 +497,20 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
 		//move down
+
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
 		//move left
+
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
 		//move right
+
 	}
 
 	//speed button for cube
@@ -499,7 +535,7 @@ void processInput(GLFWwindow* window)
 	//reset to normal speed after release
 	if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)&& (sprintPressed == true)) {
 		//speed after sprint (recovery)
-		if (((float)glfwGetTime() >= sprintTime + 5.0f)) {
+		if (((float)glfwGetTime() >= sprintTime + 1.0f)) {
 			move_unit = 0.05f;
 			//std::cout << move_unit << std::endl;
 
