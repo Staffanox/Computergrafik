@@ -4,8 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <shader.h>
 #include <camera.h>
+#include <model.h>
 
 #include <iostream>
 
@@ -31,11 +33,10 @@ float lastFrame = 0.0f;
 float sprintTime = 0.0;
 float currentSprintTime = 0.0;
 bool sprintPressed = false;
+
 //cube
 float move_unit = 0.1f;
 glm::vec3 cubePos = glm::vec3(-0.4299f, -1.1f, 0.2337f);
-
-
 
 
 int main()
@@ -53,7 +54,7 @@ int main()
 
 	// glfw window creation
 	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Steven ist der Beste", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -85,7 +86,6 @@ int main()
 	Shader ourShader("vertex.vs", "fragment.fs");
 	Shader cubeShader("cube.vs", "cube.fs");
 	Shader lampShader("lamp.vs", "lamp.fs");
-
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -314,8 +314,6 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-
-
 		//changing lightpos over time
 		pointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
 		//cubePos.y + 0.22 round about the middlepoint, since rotation of world
@@ -386,7 +384,6 @@ int main()
 		// view/projection transformations
 		cubeShader.setMat4("projection", projection);
 		cubeShader.setMat4("view", view);
-
 
 		// world transformation
 		glm::mat4 cube_model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
