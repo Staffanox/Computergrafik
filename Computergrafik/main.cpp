@@ -16,16 +16,13 @@
 
 using namespace irrklang;
 
-
 #pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
-
 
  // error starting up the engine
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-
 
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
@@ -48,16 +45,11 @@ float currentSprintTime = 0.0;
 bool sprintPressed = false;
 
 //cube
-float move_unit = 0.1f;
+float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.4299f, -0.87f, 0.2487f);
-
-
-
 
 int main()
 {
-
-	
 	// glfw: initialize and configure
 	// ------------------------------
 	glfwInit();
@@ -104,62 +96,14 @@ int main()
 
 	// build and compile our shader zprogram
 	// ------------------------------------
-	Shader boardShader("vertex.vs", "fragment.fs");
-	Shader cubeShader("cube.vs", "cube.fs");
 	Shader lampShader("lamp.vs", "lamp.fs");
 	Shader myCubeShader("cube.vs", "cube.fs");
+	Shader myBoardShader("vertex.vs", "fragment.fs");
 
 	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
-	Model myBoardModel("..\\Computergrafik\\models\\board\\board.fbx");
+	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
 
-
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-	float board[] = {
-		//position			  //normals           //textures  
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
-		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
- 		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-		 1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-		 1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-		-1.0f, -0.2f,  0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-		-1.0f, -0.2f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-
-		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-		 1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		 1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-		-1.0f,  0.2f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f
-	};
 
 	glm::vec3 cubePointLightPositions[] = {
 		glm::vec3(0.0f, -1.1f, 0.0f),
@@ -167,23 +111,6 @@ int main()
 		glm::vec3(0.0f,-1.1f,0.45f)
 
 	};
-
-	unsigned int VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(board), board, GL_STATIC_DRAW);
-
-	glBindVertexArray(VAO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 
 
 	// load and create a texture 
@@ -215,17 +142,13 @@ int main()
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
-	boardShader.use();
-	boardShader.setInt("texture1", 0);
-
-
+	myBoardShader.setInt("texture1", 0);
 
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
 	glBindVertexArray(lightVAO);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -260,37 +183,39 @@ int main()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 
+
 		//board
 		// activate shader
+		myBoardShader.use();
 
-		boardShader.use();
 
 		// directional light
 
-		boardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -5.5f);
-		boardShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
-		boardShader.setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
-		boardShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+		myBoardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -5.5f);
+		myBoardShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
+		myBoardShader.setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
+		myBoardShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
 
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		boardShader.setMat4("projection", projection);
+		myBoardShader.setMat4("projection", projection);
 
 		// camera/view transformation
 		glm::mat4 view = camera.GetViewMatrix();
-		boardShader.setMat4("view", view);
+		myBoardShader.setMat4("view", view);
 
-		glBindVertexArray(VAO);
+		//->glBindVertexArray(VAO);
 
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.5f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.5f, 0.0f, 0.0f));
-		boardShader.setMat4("model", model);
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		myBoardShader.setMat4("model", model);
+		myBoardModel.Draw(myBoardShader);
 
-
+		//->glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		//changing lightpos over time
@@ -307,11 +232,10 @@ int main()
 
 		cubePointLightPositions[2].x = cubePos.x;
 		cubePointLightPositions[2].y = cubePos.y +0.22f;
-		
+
 
 		//cube
-
-	
+		//================================
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
 		lightColor.y = sin(glfwGetTime() * 0.7f);
@@ -321,11 +245,7 @@ int main()
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.35f);
 		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.1f);
 	
-
-
-		//myCube
 		myCubeShader.use();
-
 
 		myCubeShader.setVec3("viewPos", camera.Position);
 
@@ -367,12 +287,14 @@ int main()
 		myCubeShader.setVec3("viewPos", camera.Position);
 
 		//render
-		glm::mat4 myModel = glm::mat4(1.0f);
-		myModel = glm::translate(myModel, glm::vec3(cubePos));
-		myModel = glm::scale(myModel, glm::vec3(0.04f, 0.04f, 0.04f));
-		myCubeShader.setMat4("model", myModel);
+		glm::mat4 myCubeModelMat = glm::mat4(1.0f);
+		myCubeModelMat = glm::translate(myCubeModelMat, glm::vec3(cubePos));
+		myCubeModelMat = glm::scale(myCubeModelMat, glm::vec3(0.04f, 0.04f, 0.04f));
+		myCubeShader.setMat4("model", myCubeModelMat);
 		myCubeModel.Draw(myCubeShader);
 
+		//cube end
+		//================================
 
 
 		// also draw the lamp object(s)
@@ -405,8 +327,8 @@ int main()
 
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	// not needed. will be done in model.h as well as the drawing
+
 	engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
