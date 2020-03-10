@@ -5,12 +5,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <shader.h>
+#include <model.h>
 #include <camera.h>
 #include <windows.h>
 #include <conio.h>
 #include <iostream>
 #include <stdio.h>
 #include <irrKlang.h>
+#include <filesystem>
 
 using namespace irrklang;
 
@@ -44,9 +46,10 @@ float lastFrame = 0.0f;
 float sprintTime = 0.0;
 float currentSprintTime = 0.0;
 bool sprintPressed = false;
+
 //cube
 float move_unit = 0.1f;
-glm::vec3 cubePos = glm::vec3(-0.4299f, -1.1f, 0.2337f);
+glm::vec3 cubePos = glm::vec3(-0.4299f, -0.87f, 0.2487f);
 
 
 
@@ -104,6 +107,11 @@ int main()
 	Shader boardShader("vertex.vs", "fragment.fs");
 	Shader cubeShader("cube.vs", "cube.fs");
 	Shader lampShader("lamp.vs", "lamp.fs");
+	Shader myCubeShader("cube.vs", "cube.fs");
+
+	//model loading
+	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
+	Model myBoardModel("..\\Computergrafik\\models\\board\\board.fbx");
 
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
@@ -153,55 +161,6 @@ int main()
 		-1.0f,  0.2f, -0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f
 	};
 
-	float cube[] = {
-		//right side
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
-	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,-1.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,-1.0f,
-
-	   //left side
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
-		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
-
-	   //front
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-	   -0.03f,  0.3f, -0.03f,  0.0f, 0.0f,1.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
-	   -0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
-	   -0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
-	   -0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-
-	   //back
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-		0.03f,  0.3f, -0.03f,  0.0f, 0.0f,1.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
-		0.03f,  0.22f, -0.03f, 0.0f, 0.0f,1.0f,
-		0.03f,  0.22f,  0.03f, 0.0f, 0.0f,1.0f,
-		0.03f,  0.3f,  0.03f,  0.0f, 0.0f,1.0f,
-
-		//bottom
-	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
-		0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
-		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
-		0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
-	   -0.03f,  0.22f,  0.03f,  1.0f, 1.0f,-1.0f,
-	   -0.03f,  0.22f, -0.03f,  1.0f, 1.0f,-1.0f,
-
-	   //top
-	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
-		0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
-	   -0.03f,  0.3f,  0.03f,  1.0f, 1.0f,1.0f,
-	   -0.03f,  0.3f, -0.03f,  1.0f, 1.0f,1.0f,
-	};
 	glm::vec3 cubePointLightPositions[] = {
 		glm::vec3(0.0f, -1.1f, 0.0f),
 		glm::vec3(0.0f, -1.1f, 0.0f),
@@ -261,24 +220,6 @@ int main()
 
 
 
-
-	unsigned int cubeVBO, cubeVAO;
-	glGenVertexArrays(1, &cubeVAO);
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
-
-	glBindVertexArray(cubeVAO);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// normal attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
@@ -304,7 +245,6 @@ int main()
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
 		
 
 		// input
@@ -370,9 +310,6 @@ int main()
 		
 
 		//cube
-		cubeShader.use();
-		
-		cubeShader.setVec3("viewPos", camera.Position);
 
 	
 		glm::vec3 lightColor;
@@ -383,52 +320,60 @@ int main()
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.05f);
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.35f);
 		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.1f);
-		cubeShader.setVec3("light.ambient", ambientColor);
-		cubeShader.setVec3("light.diffuse", diffuseColor);
-		cubeShader.setVec3("pointLights[0].position", cubePointLightPositions[0]);
-		cubeShader.setVec3("pointLights[0].ambient", ambientColor);
-		cubeShader.setVec3("pointLights[0].diffuse", diffuseColor);
-		cubeShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
-		cubeShader.setFloat("pointLights[0].constant", 1.0f);
-		cubeShader.setFloat("pointLights[0].linear", 0.09);
-		cubeShader.setFloat("pointLights[0].quadratic", 0.032);
+	
+
+
+		//myCube
+		myCubeShader.use();
+
+
+		myCubeShader.setVec3("viewPos", camera.Position);
+
+		myCubeShader.setVec3("light.ambient", ambientColor);
+		myCubeShader.setVec3("light.diffuse", diffuseColor);
+		myCubeShader.setVec3("pointLights[0].position", cubePointLightPositions[0]);
+		myCubeShader.setVec3("pointLights[0].ambient", ambientColor);
+		myCubeShader.setVec3("pointLights[0].diffuse", diffuseColor);
+		myCubeShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setFloat("pointLights[0].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[0].linear", 0.09);
+		myCubeShader.setFloat("pointLights[0].quadratic", 0.032);
 		// point light 2
-		cubeShader.setVec3("pointLights[1].position", cubePointLightPositions[1]);
-		cubeShader.setVec3("pointLights[1].ambient", ambientColor);
-		cubeShader.setVec3("pointLights[1].diffuse", diffuseColor);
-		cubeShader.setVec3("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
-		cubeShader.setFloat("pointLights[1].constant", 1.0f);
-		cubeShader.setFloat("pointLights[1].linear", 0.09);
-		cubeShader.setFloat("pointLights[1].quadratic", 0.032);
+		myCubeShader.setVec3("pointLights[1].position", cubePointLightPositions[1]);
+		myCubeShader.setVec3("pointLights[1].ambient", ambientColor);
+		myCubeShader.setVec3("pointLights[1].diffuse", diffuseColor);
+		myCubeShader.setVec3("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setFloat("pointLights[1].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[1].linear", 0.09);
+		myCubeShader.setFloat("pointLights[1].quadratic", 0.032);
 
 		// point light 3
-		cubeShader.setVec3("pointLights[2].position", cubePointLightPositions[2]);
-		cubeShader.setVec3("pointLights[2].ambient", ambientColor);
-		cubeShader.setVec3("pointLights[2].diffuse", diffuseColorTopDown);
-		cubeShader.setVec3("pointLights[2].specular", 0.5f, 0.5f, 0.5f);
-		cubeShader.setFloat("pointLights[2].constant", 1.0f);
-		cubeShader.setFloat("pointLights[2].linear", 0.09);
-		cubeShader.setFloat("pointLights[2].quadratic", 0.032);
+		myCubeShader.setVec3("pointLights[2].position", cubePointLightPositions[2]);
+		myCubeShader.setVec3("pointLights[2].ambient", ambientColor);
+		myCubeShader.setVec3("pointLights[2].diffuse", diffuseColorTopDown);
+		myCubeShader.setVec3("pointLights[2].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setFloat("pointLights[2].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[2].linear", 0.09);
+		myCubeShader.setFloat("pointLights[2].quadratic", 0.032);
 
 		// material properties
-		cubeShader.setVec3("material.ambient", 0.25f, 0.20725f, 0.20725f);
-		cubeShader.setVec3("material.diffuse", 1.0f, 0.829f, 0.829f);
-		cubeShader.setVec3("material.specular", 0.296648f, 0.296648f, 0.296648f); // specular lighting doesn't have full effect on this object's material
-		cubeShader.setFloat("material.shininess", 11.264f);
+		myCubeShader.setVec3("material.ambient", 0.25f, 0.20725f, 0.20725f);
+		myCubeShader.setVec3("material.diffuse", 1.0f, 0.829f, 0.829f);
+		myCubeShader.setVec3("material.specular", 0.296648f, 0.296648f, 0.296648f); // specular lighting doesn't have full effect on this object's material
+		myCubeShader.setFloat("material.shininess", 11.264f);
 
-		// view/projection transformations
-		cubeShader.setMat4("projection", projection);
-		cubeShader.setMat4("view", view);
+		myCubeShader.setMat4("projection", projection);
+		myCubeShader.setMat4("view", view);
+		myCubeShader.setVec3("viewPos", camera.Position);
+
+		//render
+		glm::mat4 myModel = glm::mat4(1.0f);
+		myModel = glm::translate(myModel, glm::vec3(cubePos));
+		myModel = glm::scale(myModel, glm::vec3(0.04f, 0.04f, 0.04f));
+		myCubeShader.setMat4("model", myModel);
+		myCubeModel.Draw(myCubeShader);
 
 
-		// world transformation
-		glm::mat4 cube_model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-		cube_model = glm::translate(cube_model, glm::vec3(cubePos));
-		cubeShader.setMat4("model", cube_model);
-
-		// render the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		// also draw the lamp object(s)
 		lampShader.use();
@@ -462,8 +407,6 @@ int main()
 	// ------------------------------------------------------------------------
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteVertexArrays(1, &cubeVAO);
-	glDeleteBuffers(1, &cubeVBO);
 	engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
