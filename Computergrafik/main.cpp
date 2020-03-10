@@ -27,8 +27,8 @@ void processInput(GLFWwindow* window);
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 2.65f));
@@ -130,36 +130,7 @@ int main()
 
 	};
 
-	// load and create a texture 
-	// -------------------------
-	unsigned int texture1;
-	// texture 1
-	// ---------
-	glGenTextures(1, &texture1);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	unsigned char* data = stbi_load(("..\\Dependencies\\resources\\container.jpg"), &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
 
-	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-	// -------------------------------------------------------------------------------------------
-	myBoardShader.setInt("texture1", 0);
 
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
@@ -196,11 +167,6 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// bind textures on corresponding texture units
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-
-
 		//board
 		// activate shader
 		myBoardShader.use();
@@ -228,12 +194,7 @@ int main()
 		glm::vec3 pulsatingGreenAmbient = pulsatingGreenDiffuse * glm::vec3(0.0f);
 
 
-		
-
-
-
-
-		myBoardShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+		myBoardShader.setVec3("objectColor", 0.0f, 0.0f, 0.0f);
 
 		myBoardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -3.5f);
 		myBoardShader.setVec3("dirLight.ambient", boardAmbientColor);
@@ -290,7 +251,7 @@ int main()
 	
 		myBoardShader.setVec3("pointLights[5].position", boardPointLightPositions[5]);
 		myBoardShader.setVec3("pointLights[5].ambient", pulsatingGreenAmbient);
-		myBoardShader.setVec3("pointLights[5].diffuse", boardDiffuseColorPoint);
+		myBoardShader.setVec3("pointLights[5].diffuse", pulsatingGreenDiffuse);
 		myBoardShader.setVec3("pointLights[5].specular", boardSpecularColor);
 		myBoardShader.setFloat("pointLights[5].constant", 1.0f);
 		myBoardShader.setFloat("pointLights[5].linear", 0.35f);
