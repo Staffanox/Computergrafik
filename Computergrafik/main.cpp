@@ -48,6 +48,7 @@ bool sprintPressed = false;
 float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
 
+
 int main()
 {
 	// glfw: initialize and configure
@@ -103,7 +104,6 @@ int main()
 	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
 	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
-
 
 	glm::vec3 cubePointLightPositions[] = {
 		glm::vec3(0.0f, -1.1f, 0.0f),
