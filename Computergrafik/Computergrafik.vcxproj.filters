@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\models">
-      <UniqueIdentifier>{e5587b59-804a-49d7-9ca1-7a066c4486aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\modelloading">
-      <UniqueIdentifier>{e3bbe909-aadf-4595-9396-21fc4a5ddfb1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -46,8 +40,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="cube.obj">
-      <Filter>Source Files\models</Filter>
-    </Text>
+    <None Include="models\cube\cube_fbx.fbx">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="models\board\board.obj">
+      <Filter>Source Files</Filter>
+    </Object>
   </ItemGroup>
 </Project>

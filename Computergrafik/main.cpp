@@ -204,7 +204,7 @@ int main()
 		// camera/view transformation
 		glm::mat4 view = camera.GetViewMatrix();
 		myBoardShader.setMat4("view", view);
-
+		
 		//->glBindVertexArray(VAO);
 
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
