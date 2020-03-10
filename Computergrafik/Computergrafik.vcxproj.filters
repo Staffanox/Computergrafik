@@ -39,14 +39,4 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="models\cube\cube_fbx.fbx">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\board\board.obj">
-      <Filter>Source Files</Filter>
-    </Object>
-  </ItemGroup>
 </Project>

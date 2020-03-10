@@ -46,7 +46,7 @@ bool sprintPressed = false;
 
 //cube
 float move_unit = 0.3f;
-glm::vec3 cubePos = glm::vec3(-0.4299f, -0.87f, 0.2487f);
+glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
 
 int main()
 {
@@ -205,17 +205,14 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		myBoardShader.setMat4("view", view);
 		
-		//->glBindVertexArray(VAO);
-
 		glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 0.5f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.5f, 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 
 		myBoardShader.setMat4("model", model);
 		myBoardModel.Draw(myBoardShader);
-
-		//->glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		//changing lightpos over time

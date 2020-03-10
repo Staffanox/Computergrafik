@@ -160,12 +160,6 @@
     <ClInclude Include="model.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="models\cube\cube_fbx.fbx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="models\board\board.obj" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
