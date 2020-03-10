@@ -116,6 +116,19 @@ int main()
 
 	};
 
+	glm::vec3 boardPointLightPositions[] = {
+			glm::vec3(-0.35f, -0.425f, -0.15f),
+			glm::vec3(-0.86f, 0.429f, -0.15f),
+			glm::vec3(0.43f, -0.44f, -0.15f),
+			glm::vec3(0.13f, -0.0f, -0.15f),
+			glm::vec3(0.6f, 0.44f, -0.15f),
+			glm::vec3(0.84f, -0.25f, -0.15f),
+			glm::vec3(0.85f, -0.44f, -0.15f),
+			glm::vec3(-0.83f, -0.194f, -0.15f),
+
+		
+
+	};
 
 	// load and create a texture 
 	// -------------------------
@@ -194,11 +207,112 @@ int main()
 
 
 		// directional light
+		glm::vec3 boardDirectLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+
+		//direct Light intensity
+		glm::vec3 boardDiffuseColor = boardDirectLightColor * glm::vec3(0.1f);
+		glm::vec3 boardAmbientColor = boardDiffuseColor * glm::vec3(0.25f);
+		glm::vec3 boardSpecularColor = glm::vec3(0.00f);
+
+
+		//Point light intensity
+		glm::vec3 boardLightColor;
+		boardLightColor.x = 0.0f;
+		boardLightColor.y = sin(glfwGetTime() * 1.5f);
+		boardLightColor.z = 0.0f;
+
+		glm::vec3 boardDiffuseColorPoint = glm::vec3(0.5f);
+		glm::vec3 boardAmbientColorPoint = glm::vec3(0.1f);
+
+		glm::vec3 pulsatingGreenDiffuse = boardLightColor * glm::vec3(0.5f);
+		glm::vec3 pulsatingGreenAmbient = pulsatingGreenDiffuse * glm::vec3(0.0f);
+
+
+		
+
+
+
+
+		myBoardShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 
 		myBoardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -3.5f);
-		myBoardShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
-		myBoardShader.setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
-		myBoardShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+		myBoardShader.setVec3("dirLight.ambient", boardAmbientColor);
+		myBoardShader.setVec3("dirLight.diffuse", boardDiffuseColor);
+		myBoardShader.setVec3("dirLight.specular", boardAmbientColor);
+
+		// board material
+		myBoardShader.setVec3("material.ambient", 0.25f, 0.25f, 0.25f);
+		myBoardShader.setVec3("material.diffuse", 0.4f, 0.4f, 0.4f);
+		myBoardShader.setVec3("material.specular", 0.774597f, 0.774597f, 0.774597f);
+		myBoardShader.setFloat("material.shininess", 76.8f);
+
+		myBoardShader.setVec3("light.ambient", boardAmbientColor);
+		myBoardShader.setVec3("light.diffuse", boardDiffuseColor);
+		myBoardShader.setVec3("pointLights[0].position", boardPointLightPositions[0]);
+		myBoardShader.setVec3("pointLights[0].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[0].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[0].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[0].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[0].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[0].quadratic", 0.44f);
+
+		myBoardShader.setVec3("pointLights[1].position", boardPointLightPositions[1]);
+		myBoardShader.setVec3("pointLights[1].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[1].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[1].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[1].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[1].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[1].quadratic", 0.44f);
+
+		myBoardShader.setVec3("pointLights[2].position", boardPointLightPositions[2]);
+		myBoardShader.setVec3("pointLights[2].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[2].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[2].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[2].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[2].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[2].quadratic", 0.44f);
+
+		myBoardShader.setVec3("pointLights[3].position", boardPointLightPositions[3]);
+		myBoardShader.setVec3("pointLights[3].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[3].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[3].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[3].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[3].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[3].quadratic", 0.44f);
+
+		myBoardShader.setVec3("pointLights[4].position", boardPointLightPositions[4]);
+		myBoardShader.setVec3("pointLights[4].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[4].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[4].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[4].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[4].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[4].quadratic", 0.44f);
+	
+		myBoardShader.setVec3("pointLights[5].position", boardPointLightPositions[5]);
+		myBoardShader.setVec3("pointLights[5].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[5].diffuse", boardDiffuseColorPoint);
+		myBoardShader.setVec3("pointLights[5].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[5].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[5].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[5].quadratic", 0.44f);
+
+		myBoardShader.setVec3("pointLights[6].position", boardPointLightPositions[6]);
+		myBoardShader.setVec3("pointLights[6].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[6].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[6].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[6].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[6].linear", 0.7f);
+		myBoardShader.setFloat("pointLights[6].quadratic", 1.8f);
+
+		myBoardShader.setVec3("pointLights[7].position", boardPointLightPositions[7]);
+		myBoardShader.setVec3("pointLights[7].ambient", pulsatingGreenAmbient);
+		myBoardShader.setVec3("pointLights[7].diffuse", pulsatingGreenDiffuse);
+		myBoardShader.setVec3("pointLights[7].specular", boardSpecularColor);
+		myBoardShader.setFloat("pointLights[7].constant", 1.0f);
+		myBoardShader.setFloat("pointLights[7].linear", 0.35f);
+		myBoardShader.setFloat("pointLights[7].quadratic", 0.44f);
+
+		
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
 
@@ -244,7 +358,6 @@ int main()
 
 		cubePointLightPositions[5].x = cubePointLightPositions[2].x;
 		cubePointLightPositions[5].y = cubePointLightPositions[2].y;
-
 
 
 
@@ -342,16 +455,16 @@ int main()
 		lampShader.setMat4("view", view);
 
 		// we now draw as many light bulbs as we have point lights.
-		glBindVertexArray(lightVAO);
+		/*glBindVertexArray(lightVAO);
 
-		 for (unsigned int i = 0; i < 6; i++)
+		 for (unsigned int i = 0; i < 8; i++)
 		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePointLightPositions[i]);
+			model = glm::translate(model, boardPointLightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.02f)); // Make it a smaller cube
 			lampShader.setMat4("model", model);
 			myCubeModel.Draw(lampShader);
-		}
+		}*/
 		
 		
 
@@ -393,11 +506,14 @@ void processInput(GLFWwindow* window)
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		cubePos.y += move_unit*deltaTime;
+		std::cout <<cubePos.y << std::endl;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
+		std::cout << cubePos.y << std::endl;
+
 		//move down
 
 	}
@@ -405,12 +521,16 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
+		std::cout << cubePos.x << std::endl;
+
 		//move left
 
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
+		std::cout << cubePos.x << std::endl;
+
 		//move right
 
 	}
