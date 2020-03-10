@@ -58,10 +58,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// start the sound engine with default parameters
-	ISoundEngine* engine = createIrrKlangDevice();
+	//ISoundEngine* engine = createIrrKlangDevice();
 
-	if (!engine)
-		return 100; // error starting up the engine
+	//if (!engine)
+	//	return 100; // error starting up the engine
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 #endif
@@ -105,10 +105,14 @@ int main()
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
 	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
 
+
 	glm::vec3 cubePointLightPositions[] = {
-		glm::vec3(0.0f, -1.1f, 0.0f),
-		glm::vec3(0.0f, -1.1f, 0.0f),
-		glm::vec3(0.0f,-1.1f,0.45f)
+			glm::vec3(0.0f, -1.1f, 0.0f),
+			glm::vec3(0.0f, -1.1f, 0.0f),
+			glm::vec3(0.0f,-1.1f,-0.2f),
+			glm::vec3(0.0f, -1.1f, 0.0f),
+			glm::vec3(0.0f, -1.1f, 0.0f),
+			glm::vec3(0.0f,0.0f,-0.05f)
 
 	};
 
@@ -155,8 +159,8 @@ int main()
 	
 
 	//Play background music during game
-	engine->setSoundVolume(0.01f);
-	engine->play2D(musicSrc, GL_TRUE);
+	//engine->setSoundVolume(0.01f);
+	//engine->play2D(musicSrc, GL_TRUE);
 	
 
 	// render loop
@@ -191,7 +195,7 @@ int main()
 
 		// directional light
 
-		myBoardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -5.5f);
+		myBoardShader.setVec3("dirLight.direction", -0.0f, 0.25f, -3.5f);
 		myBoardShader.setVec3("dirLight.ambient", 0.3f, 0.3f, 0.3f);
 		myBoardShader.setVec3("dirLight.diffuse", 0.9f, 0.9f, 0.9f);
 		myBoardShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
@@ -215,33 +219,47 @@ int main()
 		myBoardModel.Draw(myBoardShader);
 
 
+		//cube
+		//================================
+
+
 		//changing lightpos over time
 		cubePointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
 
-		//cubePos.y + 0.22 round about the middlepoint, since rotation of world
-
-		cubePointLightPositions[0].y = (cubePos.y + 0.22f);
-		cubePointLightPositions[0].z = 0.5f - abs(sin(glfwGetTime()) / 5.0f);
+		cubePointLightPositions[0].y = (cubePos.y);
+		cubePointLightPositions[0].z = 0.2f - abs(sin(glfwGetTime()) / 2.0f);
 
 		cubePointLightPositions[1].x = cubePos.x;
 		cubePointLightPositions[1].y = cubePos.y - ((sin(glfwGetTime()) / 2.0f));
 		cubePointLightPositions[1].z = cubePointLightPositions[0].z;
 
 		cubePointLightPositions[2].x = cubePos.x;
-		cubePointLightPositions[2].y = cubePos.y +0.22f;
+		cubePointLightPositions[2].y = cubePos.y;
+
+		cubePointLightPositions[3] = cubePointLightPositions[0];
+		cubePointLightPositions[3].x = cubePos.x + ((sin(glfwGetTime()) / 2.0f));
+
+		cubePointLightPositions[4] = cubePointLightPositions[1];
+		cubePointLightPositions[4].y = cubePos.y + ((sin(glfwGetTime()) / 2.0f));
+
+		cubePointLightPositions[5].x = cubePointLightPositions[2].x;
+		cubePointLightPositions[5].y = cubePointLightPositions[2].y;
 
 
-		//cube
-		//================================
+
+
+
+
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
 		lightColor.y = sin(glfwGetTime() * 0.7f);
 		lightColor.z = sin(glfwGetTime() * 1.3f);
 
-		glm::vec3 diffuseColor = lightColor * glm::vec3(0.05f);
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.35f);
-		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.1f);
-	
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.15f);
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.25f);
+		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.15f);
+		glm::vec3 ambientColorTopDown = diffuseColorTopDown * glm::vec3(0.35f);
+		glm::vec3 specularColor = glm::vec3(0.05f);
 		myCubeShader.use();
 
 		myCubeShader.setVec3("viewPos", camera.Position);
@@ -251,7 +269,7 @@ int main()
 		myCubeShader.setVec3("pointLights[0].position", cubePointLightPositions[0]);
 		myCubeShader.setVec3("pointLights[0].ambient", ambientColor);
 		myCubeShader.setVec3("pointLights[0].diffuse", diffuseColor);
-		myCubeShader.setVec3("pointLights[0].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setVec3("pointLights[0].specular", specularColor);
 		myCubeShader.setFloat("pointLights[0].constant", 1.0f);
 		myCubeShader.setFloat("pointLights[0].linear", 0.09);
 		myCubeShader.setFloat("pointLights[0].quadratic", 0.032);
@@ -259,7 +277,7 @@ int main()
 		myCubeShader.setVec3("pointLights[1].position", cubePointLightPositions[1]);
 		myCubeShader.setVec3("pointLights[1].ambient", ambientColor);
 		myCubeShader.setVec3("pointLights[1].diffuse", diffuseColor);
-		myCubeShader.setVec3("pointLights[1].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setVec3("pointLights[1].specular", specularColor);
 		myCubeShader.setFloat("pointLights[1].constant", 1.0f);
 		myCubeShader.setFloat("pointLights[1].linear", 0.09);
 		myCubeShader.setFloat("pointLights[1].quadratic", 0.032);
@@ -272,6 +290,30 @@ int main()
 		myCubeShader.setFloat("pointLights[2].constant", 1.0f);
 		myCubeShader.setFloat("pointLights[2].linear", 0.09);
 		myCubeShader.setFloat("pointLights[2].quadratic", 0.032);
+
+		myCubeShader.setVec3("pointLights[3].position", cubePointLightPositions[3]);
+		myCubeShader.setVec3("pointLights[3].ambient", ambientColor);
+		myCubeShader.setVec3("pointLights[3].diffuse", diffuseColor);
+		myCubeShader.setVec3("pointLights[3].specular", specularColor);
+		myCubeShader.setFloat("pointLights[3].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[3].linear", 0.09);
+		myCubeShader.setFloat("pointLights[3].quadratic", 0.032);
+
+		myCubeShader.setVec3("pointLights[4].position", cubePointLightPositions[4]);
+		myCubeShader.setVec3("pointLights[4].ambient", ambientColor);
+		myCubeShader.setVec3("pointLights[4].diffuse", diffuseColor);
+		myCubeShader.setVec3("pointLights[4].specular", specularColor);
+		myCubeShader.setFloat("pointLights[4].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[4].linear", 0.09);
+		myCubeShader.setFloat("pointLights[4].quadratic", 0.032);
+
+		myCubeShader.setVec3("pointLights[5].position", cubePointLightPositions[5]);
+		myCubeShader.setVec3("pointLights[5].ambient", ambientColorTopDown);
+		myCubeShader.setVec3("pointLights[5].diffuse", diffuseColorTopDown);
+		myCubeShader.setVec3("pointLights[5].specular", 0.5f, 0.5f, 0.5f);
+		myCubeShader.setFloat("pointLights[5].constant", 1.0f);
+		myCubeShader.setFloat("pointLights[5].linear", 0.09);
+		myCubeShader.setFloat("pointLights[5].quadratic", 0.032);
 
 		// material properties
 		myCubeShader.setVec3("material.ambient", 0.25f, 0.20725f, 0.20725f);
@@ -302,18 +344,16 @@ int main()
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
 
-		 //uncomment to see light sources
-		/*for (unsigned int i = 0; i < 3; i++)
+		 for (unsigned int i = 0; i < 6; i++)
 		{
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+			model = glm::scale(model, glm::vec3(0.02f)); // Make it a smaller cube
 			lampShader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}*/
+			myCubeModel.Draw(lampShader);
+		}
 		
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -326,7 +366,7 @@ int main()
 	// ------------------------------------------------------------------------
 	// not needed. will be done in model.h as well as the drawing
 
-	engine->drop();
+	//engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
 	glfwTerminate();
