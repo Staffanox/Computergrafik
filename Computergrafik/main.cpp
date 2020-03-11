@@ -23,6 +23,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+unsigned int loadTexture(const char *path);
+unsigned int loadCubemap(vector<std::string> faces);
+
 
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
@@ -47,6 +50,9 @@ bool sprintPressed = false;
 //cube
 float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
+
+//normals
+bool showNormals = false;
 
 
 int main()
@@ -106,6 +112,8 @@ int main()
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
 	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
 
+	//SKYBOX END
+
 
 	glm::vec3 cubePointLightPositions[] = {
 			glm::vec3(0.0f, -1.1f, 0.0f),
@@ -114,7 +122,6 @@ int main()
 			glm::vec3(0.0f, -1.1f, 0.0f),
 			glm::vec3(0.0f, -1.1f, 0.0f),
 			glm::vec3(0.0f,0.0f,-0.05f)
-
 	};
 
 	glm::vec3 boardPointLightPositions[] = {
@@ -126,9 +133,6 @@ int main()
 			glm::vec3(0.84f, -0.25f, -0.15f),
 			glm::vec3(0.85f, -0.44f, -0.15f),
 			glm::vec3(-0.83f, -0.194f, -0.15f),
-
-		
-
 	};
 
 
@@ -171,7 +175,6 @@ int main()
 		//board
 		// activate shader
 		myBoardShader.use();
-
 
 		// directional light
 		glm::vec3 boardDirectLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -412,14 +415,14 @@ int main()
 
 		//draw normals
 
-		/*
-		normalShader.use();
-		normalShader.setMat4("projection", projection);
-		normalShader.setMat4("view", view);
-		normalShader.setMat4("model", myCubeModelMat);
+		if (showNormals) {
+			normalShader.use();
+			normalShader.setMat4("projection", projection);
+			normalShader.setMat4("view", view);
+			normalShader.setMat4("model", myCubeModelMat);
 
-		myCubeModel.Draw(normalShader);
-		*/
+			myCubeModel.Draw(normalShader);
+		}
 
 		// also draw the lamp object(s)
 		lampShader.use();
@@ -437,8 +440,6 @@ int main()
 			lampShader.setMat4("model", model);
 			myCubeModel.Draw(lampShader);
 		}*/
-		
-		
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -450,6 +451,7 @@ int main()
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	// not needed. will be done in model.h as well as the drawing
+
 
 	//engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
@@ -474,6 +476,9 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+		showNormals = !showNormals;
 
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
