@@ -100,6 +100,7 @@ int main()
 	Shader lampShader("lamp.vs", "lamp.fs");
 	Shader myCubeShader("cube.vs", "cube.fs");
 	Shader myBoardShader("vertex.vs", "fragment.fs");
+	Shader normalShader("normal_visualization.vs", "normal_visualization.fs", "normal_visualization.gs");
 
 	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
@@ -409,6 +410,16 @@ int main()
 		//cube end
 		//================================
 
+		//draw normals
+
+		/*
+		normalShader.use();
+		normalShader.setMat4("projection", projection);
+		normalShader.setMat4("view", view);
+		normalShader.setMat4("model", myCubeModelMat);
+
+		myCubeModel.Draw(normalShader);
+		*/
 
 		// also draw the lamp object(s)
 		lampShader.use();
