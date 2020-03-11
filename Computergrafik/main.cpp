@@ -26,7 +26,6 @@ void processInput(GLFWwindow* window);
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
 
-
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
@@ -104,12 +103,12 @@ int main()
 	// build and compile our shader zprogram
 	// ------------------------------------
 	Shader lampShader("lamp.vs", "lamp.fs");
+	Shader cubeLampShader("cubelamp.vs", "cubelamp.fs");
 	Shader myCubeShader("cube.vs", "cube.fs");
 	Shader myBoardShader("vertex.vs", "fragment.fs");
 	Shader normalShader("normal_visualization.vs", "normal_visualization.fs", "normal_visualization.gs");
 
 	Shader skyboxShader("skybox.vs", "skybox.fs");
-
 
 	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
@@ -162,7 +161,6 @@ int main()
 		 1.0f, -1.0f,  1.0f
 	};
 
-
 	// skybox VAO
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -172,7 +170,6 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
 
 	// load textures
 // -------------
@@ -189,14 +186,10 @@ int main()
 
 	unsigned int cubemapTexture = loadCubemap(faces);
 
-
-
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
 
-
 	//SKYBOX END
-
 
 	glm::vec3 cubePointLightPositions[] = {
 			glm::vec3(0.0f, -1.1f, 0.0f),
@@ -226,6 +219,14 @@ int main()
 	glBindVertexArray(lightVAO);
 
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//.. same for cubelight
+	unsigned int cubeLightVAO;
+	glGenVertexArrays(1, &cubeLightVAO);
+	glBindVertexArray(cubeLightVAO);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	
@@ -384,10 +385,10 @@ int main()
 
 
 		//cube
-//================================
+		//================================
 
 
-//changing lightpos over time
+		//changing lightpos over time
 		cubePointLightPositions[0].x = cubePos.x - ((sin(glfwGetTime()) / 2.0f));
 
 		cubePointLightPositions[0].y = (cubePos.y);
@@ -529,8 +530,15 @@ int main()
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
+		// draw cubeLamp
+		cubeLampShader.use();
+		
+		cubeLampShader.setMat4("projection", projection);
+		cubeLampShader.setMat4("view", view);
+
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
+		glBindVertexArray(cubeLightVAO);
 
 		/*
 		 for (unsigned int i = 0; i < 8; i++)
