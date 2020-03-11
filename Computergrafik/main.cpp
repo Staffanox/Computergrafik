@@ -179,12 +179,12 @@ int main()
 
 	vector<std::string> faces
 	{
-		"..\\Computergrafik\\skybox\\right.jpg",
-		"..\\Computergrafik\\skybox\\left.jpg",
-		"..\\Computergrafik\\skybox\\top.jpg",
-		"..\\Computergrafik\\skybox\\bottom.jpg",
-		"..\\Computergrafik\\skybox\\front.jpg",
-		"..\\Computergrafik\\skybox\\back.jpg"
+		"..\\Computergrafik\\skybox\\right.png",
+		"..\\Computergrafik\\skybox\\left.png",
+		"..\\Computergrafik\\skybox\\top.png",
+		"..\\Computergrafik\\skybox\\bottom.png",
+		"..\\Computergrafik\\skybox\\front.png",
+		"..\\Computergrafik\\skybox\\back.png"
 	};
 
 	unsigned int cubemapTexture = loadCubemap(faces);
