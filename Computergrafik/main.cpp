@@ -53,6 +53,9 @@ glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
 //normals
 bool showNormals = false;
 
+//collision
+bool collision = false;
+
 
 int main()
 {
@@ -103,14 +106,12 @@ int main()
 	// build and compile our shader zprogram
 	// ------------------------------------
 	Shader lampShader("lamp.vs", "lamp.fs");
-	Shader cubeLampShader("cubelamp.vs", "cubelamp.fs");
 	Shader myCubeShader("cube.vs", "cube.fs");
 	Shader myBoardShader("vertex.vs", "fragment.fs");
 	Shader normalShader("normal_visualization.vs", "normal_visualization.fs", "normal_visualization.gs");
-
 	Shader skyboxShader("skybox.vs", "skybox.fs");
 
-	//model loading
+	//load models
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
 	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
 
@@ -211,8 +212,6 @@ int main()
 			glm::vec3(-0.83f, -0.194f, -0.15f),
 	};
 
-
-
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
 	glGenVertexArrays(1, &lightVAO);
@@ -221,21 +220,11 @@ int main()
 	// note that we update the lamp's position attribute's stride to reflect the updated buffer data
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-
-	//.. same for cubelight
-	unsigned int cubeLightVAO;
-	glGenVertexArrays(1, &cubeLightVAO);
-	glBindVertexArray(cubeLightVAO);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 	
-
 	//Play background music during game
 	//engine->setSoundVolume(0.01f);
 	//engine->play2D(musicSrc, GL_TRUE);
 	
-
 	// render loop
 	// -----------
 	while (!glfwWindowShouldClose(window))
@@ -255,8 +244,6 @@ int main()
 		// ------
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 
 		//board
 		// activate shader
@@ -506,7 +493,6 @@ int main()
 		}
 
 
-
 		//SKYBOX  -  MUST be last object of this while loop
 
 		// draw skybox as last
@@ -530,15 +516,8 @@ int main()
 		lampShader.setMat4("projection", projection);
 		lampShader.setMat4("view", view);
 
-		// draw cubeLamp
-		cubeLampShader.use();
-		
-		cubeLampShader.setMat4("projection", projection);
-		cubeLampShader.setMat4("view", view);
-
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
-		glBindVertexArray(cubeLightVAO);
 
 		/*
 		 for (unsigned int i = 0; i < 8; i++)
@@ -664,6 +643,7 @@ void processInput(GLFWwindow* window)
 		
 	}
 }
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
