@@ -23,9 +23,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
-bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
-bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
-
+bool collisionCheck(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
+void collisionGoal(glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
 
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
@@ -54,8 +53,8 @@ bool sprintPressed = false;
 float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
 glm::vec3 cubeSize = glm::vec3(0.0004f, 0.04f, 0.04f);
-glm::vec3 goalPos = glm::vec3(0.633678f, 0.05703f, -0.1227f);
-
+glm::vec3 goalPos[] = { glm::vec3(0.633678f, 0.05703f, -0.1227f) };
+glm::vec3 goalSize[] = { glm::vec3(0.04f,0.02f,0.02f) };
 
 glm::vec3 powerUpPositions[]{
 			glm::vec3(-0.86f, 0.429f, -0.15f),
@@ -68,44 +67,12 @@ glm::vec3 powerUpSize[]{
 };
 
 
-bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[], unsigned int key) {
+bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
 
-
-	switch (key) {
-	case 265:
-		if(checkXAxis(cubePos,collisionObject,collisionSize))
-			if(checkYAxis(cubePos, collisionObject, collisionSize))
-				return true;
-
-		
-	case 264:
-		if (checkXAxis(cubePos, collisionObject, collisionSize))
-			if (checkYAxis(cubePos, collisionObject, collisionSize))
-				return true;
-
-		
-		
-	case 263:
-		if (checkXAxis(cubePos, collisionObject, collisionSize))
-			if (checkYAxis(cubePos, collisionObject, collisionSize))
-				return true;
-
-		
-		
-	case 262:
-		if (checkXAxis(cubePos, collisionObject, collisionSize))
-			if (checkYAxis(cubePos, collisionObject, collisionSize))
-				return true;
-			
-
-	default:
-		return false;
-
-
-
-		}
-
-	return false;
+		if(collisionCheck(cubePos,collisionObject,collisionSize))
+			return true;
+		else
+			return false;
 	}
 	
 
@@ -572,7 +539,7 @@ int main()
 
 		//start goal
 		glm::mat4 goalMat = glm::mat4(1.0f);
-		goalMat = glm::translate(goalMat, glm::vec3(goalPos));
+		goalMat = glm::translate(goalMat, glm::vec3(goalPos[0]));
 		goalMat = glm::scale(goalMat, glm::vec3(0.04f, 0.04f, 0.0004f));
 		myCubeShader.setMat4("model", goalMat);
 		myCubeModel.Draw(myCubeShader);
@@ -709,8 +676,8 @@ void processInput(GLFWwindow* window)
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		cubePos.y += move_unit * deltaTime;
-		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_UP);
-		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_UP))
+		collisionGoal(goalPos, goalSize);
+		if (collisionPowerUp(powerUpPositions, powerUpSize))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 		//move up
@@ -718,8 +685,8 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
-		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_DOWN);
-		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_DOWN))
+		collisionGoal(goalPos, goalSize);
+		if (collisionPowerUp(powerUpPositions, powerUpSize))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 
@@ -729,8 +696,8 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
-		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_LEFT);
-		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_LEFT))
+		collisionGoal(goalPos, goalSize);
+		if (collisionPowerUp(powerUpPositions, powerUpSize))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 
@@ -740,8 +707,8 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
-		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_RIGHT);
-		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_RIGHT))
+		collisionGoal(goalPos, goalSize);
+		if (collisionPowerUp(powerUpPositions, powerUpSize))
 			move_unit = move_unit * 1.005f;
 		std::cout << move_unit << std::endl;
 
@@ -793,6 +760,7 @@ void processInput(GLFWwindow* window)
 	}
 }
 
+
 	// glfw: whenever the window size changed (by OS or user resize) this callback function executes
 	// ---------------------------------------------------------------------------------------------
 	void framebuffer_size_callback(GLFWwindow * window, int width, int height)
@@ -830,36 +798,24 @@ void processInput(GLFWwindow* window)
 		camera.ProcessMouseScroll(yoffset);
 	}
 
-	bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
-		for (unsigned int i = 0; i < 2; i++) {
-			if (cubePos.x + cubeSize.x <= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x) {
-				std::cout << "Erreicht" << std::endl;
-
+	bool collisionCheck(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+		for (unsigned int i = 0; i < 1; i++) {
+			if (cubePos.x - (cubeSize.x / 2) <= (collisionObject[i].x + collisionSize[i].x / 2) && cubePos.x + (cubeSize.x / 2) >= (collisionObject[i].x - collisionSize[i].x / 2) &&
+				(cubePos.y - (cubeSize.y / 2) <= (collisionObject[i].y + collisionSize[i].y / 2) && cubePos.y + (cubeSize.y / 2) >= (collisionObject[i].y - collisionSize[i].y / 2)))
 				return true;
-			}
+
 			else
 				return false;
 		}
 
 		return false;
-
 	}
+void collisionGoal(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
 
-	bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
-		for (unsigned int i = 0; i < 2; i++) {
-			if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
-				std::cout << "Erreicht" << std::endl;
+	if (collisionCheck(cubePos, collisionObject, collisionSize))
+		exit(100);
 
-				return true;
-			}
-			else
-				return false;
-		}
-
-		return false;
-
-
-	}
+}
 
 	// loads a cubemap texture from 6 individual texture faces
 	// order:
