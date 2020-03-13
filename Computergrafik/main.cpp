@@ -23,6 +23,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
+bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
+bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
+
 
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
@@ -47,65 +50,62 @@ bool sprintPressed = false;
 //cube
 float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
-glm::vec3 cubeSize = glm::vec3(0.22396f, 0.00f, 0.0f);
+glm::vec3 cubeSize = glm::vec3(0.0004f, 0.04f, 0.04f);
 glm::vec3 goalPos = glm::vec3(0.633678f, 0.05703f, -0.1227f);
 
 
 glm::vec3 powerUpPositions[]{
 			glm::vec3(-0.86f, 0.429f, -0.15f),
-			glm::vec3(0.13f, -0.0f, -0.15f)
 
 };
 
 glm::vec3 powerUpSize[]{
-	glm::vec3(0.172f,0.0858f,0.0f),
-	glm::vec3(0.026f,0.0f,0.0f)
+	glm::vec3(0.0004f,0.02f,0.02f),
 
 };
 
 
 bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[], unsigned int key) {
-	std::cout << sizeof(collisionObject) / sizeof(*collisionObject) << std::endl;
-	std::cout << key << std::endl;
-	for (unsigned int i = 0; i < sizeof(collisionObject) / sizeof(*collisionObject); i++) {
-		std::cout << i << std::endl;
 
-		switch (key) {
-		case 265:
-			if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
-				std::cout << cubePos.y << std::endl;
-				std::cout << cubeSize.y << std::endl;
-				std::cout << collisionObject[i].y << std::endl;
-				std::cout << collisionSize[i].y << std::endl;
 
+	switch (key) {
+	case 265:
+		if(checkXAxis(cubePos,collisionObject,collisionSize))
+			if(checkYAxis(cubePos, collisionObject, collisionSize))
 				return true;
-				
-			}
-			break;
-		case 264:
-			if (cubePos.y + cubeSize.y >= (collisionObject[i].y) && (collisionObject[i].y) + (collisionSize[i].y))
-				return true;
-			break;
-		case 263:
-			if (cubePos.x + cubeSize.x >= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x)
-				return true;
-			break;
-		case 262:
-			if (cubePos.x + cubeSize.x >= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x)
-				return true;
-			break;
 
-		default:
-			std::cout << "hi" << std::endl;
-			return false;
+		
+	case 264:
+		if (checkXAxis(cubePos, collisionObject, collisionSize))
+			if (checkYAxis(cubePos, collisionObject, collisionSize))
+				return true;
+
+		
+		
+	case 263:
+		if (checkXAxis(cubePos, collisionObject, collisionSize))
+			if (checkYAxis(cubePos, collisionObject, collisionSize))
+				return true;
+
+		
+		
+	case 262:
+		if (checkXAxis(cubePos, collisionObject, collisionSize))
+			if (checkYAxis(cubePos, collisionObject, collisionSize))
+				return true;
+			
+
+	default:
+		return false;
 
 
 
 		}
 
-
+	return false;
 	}
-}
+	
+
 
 
 int main()
@@ -639,15 +639,15 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		cubePos.y += move_unit * deltaTime;
 		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_UP))
-			move_unit = move_unit * 1.5f;
-		//std::cout << move_unit << std::endl;
+			move_unit = move_unit * 1.05f;
+		std::cout << move_unit << std::endl;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
 		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_DOWN))
-			move_unit = move_unit * 1.5f;		//move down
+			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 
 
@@ -657,7 +657,7 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
 		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_LEFT))
-			move_unit = move_unit * 1.5f;
+			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 
 		//move left
@@ -667,7 +667,7 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
 		if (collisionPowerUp(powerUpPositions,powerUpSize, (int)GLFW_KEY_RIGHT))
-			move_unit = move_unit *1.5f;
+			move_unit = move_unit * 1.005f;
 		std::cout << move_unit << std::endl;
 
 		//move right
@@ -758,3 +758,32 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	camera.ProcessMouseScroll(yoffset);
 }
 
+bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+	for (unsigned int i = 0; i < 2; i++) {
+		if (cubePos.x + cubeSize.x <= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x) {
+			std::cout << "Erreicht" << std::endl;
+
+			return true;
+		}
+		else
+			return false;
+	}
+
+	return false;
+
+}
+
+bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+	for (unsigned int i = 0; i < 2; i++) {
+		if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
+			std::cout << "Erreicht" << std::endl;
+
+			return true;
+		}
+		else
+			return false;
+	}
+
+	return false;
+
+}
