@@ -619,7 +619,6 @@ int main()
 
 
 
-=======
 		//draw normals
 
 		if (showNormals) {
@@ -667,7 +666,7 @@ int main()
 			lampShader.setMat4("model", model);
 			myCubeModel.Draw(lampShader);
 		}
-
+		*/
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
@@ -703,43 +702,37 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) 
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		camera.Position = glm::vec3(cubePos.x, cubePos.y, camera.Position.z);
-		
-	
+
+
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		cubePos.y += move_unit * deltaTime;
-		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_UP))
+		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_UP);
+		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_UP))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
-
-
-	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-		showNormals = !showNormals;
-
-	//move cube
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		cubePos.y += move_unit*deltaTime;
-		std::cout <<cubePos.y << std::endl;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
-		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_DOWN))
+		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_DOWN);
+		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_DOWN))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
+
 
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
-		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_LEFT))
+		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_LEFT);
+		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_LEFT))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
-
 
 		//move left
 
@@ -747,10 +740,10 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
-		if (collisionPowerUp(powerUpPositions,powerUpSize, (int)GLFW_KEY_RIGHT))
+		//collisionGoal(goalPos, goalSize, (int)GLFW_KEY_RIGHT);
+		if (collisionPowerUp(powerUpPositions, powerUpSize, (int)GLFW_KEY_RIGHT))
 			move_unit = move_unit * 1.005f;
 		std::cout << move_unit << std::endl;
-
 
 		//move right
 
@@ -800,73 +793,85 @@ void processInput(GLFWwindow* window)
 	}
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
-
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (firstMouse)
+	// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+	// ---------------------------------------------------------------------------------------------
+	void framebuffer_size_callback(GLFWwindow * window, int width, int height)
 	{
+		// make sure the viewport matches the new window dimensions; note that width and 
+		// height will be significantly larger than specified on retina displays.
+		glViewport(0, 0, width, height);
+	}
+
+
+	// glfw: whenever the mouse moves, this callback is called
+	// -------------------------------------------------------
+	void mouse_callback(GLFWwindow * window, double xpos, double ypos)
+	{
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
 		lastX = xpos;
 		lastY = ypos;
-		firstMouse = false;
+
+		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
 
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+	// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+	// ----------------------------------------------------------------------
+	void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
+	{
+		camera.ProcessMouseScroll(yoffset);
+	}
 
-	lastX = xpos;
-	lastY = ypos;
+	bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+		for (unsigned int i = 0; i < 2; i++) {
+			if (cubePos.x + cubeSize.x <= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x) {
+				std::cout << "Erreicht" << std::endl;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
-}
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	camera.ProcessMouseScroll(yoffset);
-}
-
-bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
-	for (unsigned int i = 0; i < 2; i++) {
-		if (cubePos.x + cubeSize.x <= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x) {
-			std::cout << "Erreicht" << std::endl;
-
-			return true;
+				return true;
+			}
+			else
+				return false;
 		}
-		else
-			return false;
+
+		return false;
+
 	}
 
-	return false;
+	bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+		for (unsigned int i = 0; i < 2; i++) {
+			if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
+				std::cout << "Erreicht" << std::endl;
 
-}
-
-bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
-	for (unsigned int i = 0; i < 2; i++) {
-		if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
-			std::cout << "Erreicht" << std::endl;
-
-			return true;
+				return true;
+			}
+			else
+				return false;
 		}
-		else
-			return false;
+
+		return false;
+
+
 	}
 
-	return false;
+	// loads a cubemap texture from 6 individual texture faces
+	// order:
+	// +X (right)
+	// -X (left)
+	// +Y (top)
+	// -Y (bottom)
+	// +Z (front) 
+	// -Z (back)
+	// -------------------------------------------------------
 
-=======
-// utility function for loading a 2D texture from file
+	// utility function for loading a 2D texture from file
 // ---------------------------------------------------
 unsigned int loadTexture(char const* path)
 {
