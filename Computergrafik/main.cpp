@@ -27,11 +27,11 @@ void processInput(GLFWwindow* window);
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 2.65f));
+Camera camera(glm::vec3(0.0f, -1.0f, 2.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -47,7 +47,66 @@ bool sprintPressed = false;
 //cube
 float move_unit = 0.3f;
 glm::vec3 cubePos = glm::vec3(-0.5599f, -0.00f, -0.1227f);
+glm::vec3 cubeSize = glm::vec3(0.22396f, 0.00f, 0.0f);
 glm::vec3 goalPos = glm::vec3(0.633678f, 0.05703f, -0.1227f);
+
+
+glm::vec3 powerUpPositions[]{
+			glm::vec3(-0.86f, 0.429f, -0.15f),
+			glm::vec3(0.13f, -0.0f, -0.15f)
+
+};
+
+glm::vec3 powerUpSize[]{
+	glm::vec3(0.172f,0.0858f,0.0f),
+	glm::vec3(0.026f,0.0f,0.0f)
+
+};
+
+
+bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[], unsigned int key) {
+	std::cout << sizeof(collisionObject) / sizeof(*collisionObject) << std::endl;
+	std::cout << key << std::endl;
+	for (unsigned int i = 0; i < sizeof(collisionObject) / sizeof(*collisionObject); i++) {
+		std::cout << i << std::endl;
+
+		switch (key) {
+		case 265:
+			if (cubePos.y + cubeSize.y >= collisionObject[i].y && collisionObject[i].y + collisionSize[i].y) {
+				std::cout << cubePos.y << std::endl;
+				std::cout << cubeSize.y << std::endl;
+				std::cout << collisionObject[i].y << std::endl;
+				std::cout << collisionSize[i].y << std::endl;
+
+				return true;
+				
+			}
+			break;
+		case 264:
+			if (cubePos.y + cubeSize.y >= (collisionObject[i].y) && (collisionObject[i].y) + (collisionSize[i].y))
+				return true;
+			break;
+		case 263:
+			if (cubePos.x + cubeSize.x >= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x)
+				return true;
+			break;
+		case 262:
+			if (cubePos.x + cubeSize.x >= collisionObject[i].x && collisionObject[i].x + collisionSize[i].x)
+				return true;
+			break;
+
+		default:
+			std::cout << "hi" << std::endl;
+			return false;
+
+
+
+		}
+
+
+	}
+}
+
 
 int main()
 {
@@ -59,7 +118,6 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	// start the sound engine with default parameters
 	//ISoundEngine* engine = createIrrKlangDevice();
-
 	//if (!engine)
 	//	return 100; // error starting up the engine
 #ifdef __APPLE__
@@ -100,6 +158,7 @@ int main()
 	Shader lampShader("lamp.vs", "lamp.fs");
 	Shader myCubeShader("cube.vs", "cube.fs");
 	Shader myBoardShader("vertex.vs", "fragment.fs");
+	Shader powerUpShader("powerUp.vs", "powerUp.fs");
 
 	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
@@ -129,8 +188,18 @@ int main()
 			glm::vec3(-0.83f, -0.194f, -0.15f),
 
 
+	};
+
+	
+
+
+	glm::vec3 powerUpLightPositions[]{
+			glm::vec3(-0.86f, 0.429f, -0.05f),
+			glm::vec3(0.13f, -0.0f, -0.05f)
+
 
 	};
+
 
 	// load and create a texture 
 	// -------------------------
@@ -218,12 +287,12 @@ int main()
 
 		//Point light intensity
 		glm::vec3 boardLightColor;
-		boardLightColor.x = cos(glfwGetTime() * 2.5f);
-		boardLightColor.y = sin(glfwGetTime() * 1.2f);
-		boardLightColor.z = cos(glfwGetTime() * 0.8f);
+		boardLightColor.x = cos(glfwGetTime() * 1.7f);
+		boardLightColor.y = sin(glfwGetTime() * 2.5f);
+		boardLightColor.z = cos(glfwGetTime() * 1.5f);
 
-		glm::vec3 boardDiffuseColorPoint = glm::vec3(0.5f);
-		glm::vec3 boardAmbientColorPoint = glm::vec3(0.1f);
+		glm::vec3 boardDiffuseColorPoint = glm::vec3(0.6f);
+		glm::vec3 boardAmbientColorPoint = glm::vec3(0.2f);
 
 		glm::vec3 pulsatingGreenDiffuse = boardLightColor * glm::vec3(0.5f);
 		glm::vec3 pulsatingGreenAmbient = pulsatingGreenDiffuse * glm::vec3(0.0f);
@@ -369,7 +438,7 @@ int main()
 		lightColor.y = sin(glfwGetTime() * 0.7f);
 		lightColor.z = sin(glfwGetTime() * 1.3f);
 
-		
+
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.15f);
 		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.25f);
 		glm::vec3 diffuseColorTopDown = lightColor * glm::vec3(0.15f);
@@ -431,7 +500,7 @@ int main()
 		myCubeShader.setFloat("pointLights[5].quadratic", 1.8f);
 
 		myCubeShader.setVec3("pointLights[6].position", cubePointLightPositions[6]);
-		myCubeShader.setVec3("pointLights[6].ambient", glm::vec3(0.25f));
+		myCubeShader.setVec3("pointLights[6].ambient", glm::vec3(0.5f));
 		myCubeShader.setVec3("pointLights[6].diffuse", glm::vec3(0.25f));
 		myCubeShader.setVec3("pointLights[6].specular", specularColor);
 		myCubeShader.setFloat("pointLights[6].constant", 1.0f);
@@ -466,6 +535,49 @@ int main()
 		myCubeShader.setMat4("model", goalMat);
 		myCubeModel.Draw(myCubeShader);
 
+		//end goal
+
+
+		//start powerups
+
+
+
+		glm::vec3 powerUpDiffuse = glm::vec3(0.5f);
+		glm::vec3 powerUpAmbient = glm::vec3(0.1f);
+		glm::vec3 powerUpSpecular = glm::vec3(0.05f);
+
+
+
+		powerUpShader.setVec3("light.ambient", powerUpAmbient);
+		powerUpShader.setVec3("light.diffuse", powerUpDiffuse);
+		powerUpShader.setVec3("pointLights[0].position", powerUpLightPositions[0]);
+		powerUpShader.setVec3("pointLights[0].ambient", powerUpAmbient);
+		powerUpShader.setVec3("pointLights[0].diffuse", powerUpDiffuse);
+		powerUpShader.setVec3("pointLights[0].specular", boardSpecularColor);
+		powerUpShader.setFloat("pointLights[0].constant", 1.0f);
+		powerUpShader.setFloat("pointLights[0].linear", 0.7f);
+		powerUpShader.setFloat("pointLights[0].quadratic", 1.8f);
+
+		powerUpShader.setVec3("pointLights[1].position", powerUpLightPositions[1]);
+		powerUpShader.setVec3("pointLights[1].ambient", powerUpAmbient);
+		powerUpShader.setVec3("pointLights[1].diffuse", powerUpDiffuse);
+		powerUpShader.setVec3("pointLights[1].specular", boardSpecularColor);
+		powerUpShader.setFloat("pointLights[1].constant", 1.0f);
+		powerUpShader.setFloat("pointLights[1].linear", 0.7f);
+		powerUpShader.setFloat("pointLights[1].quadratic", 1.8f);
+
+		for (unsigned int i = 0; i < sizeof(powerUpPositions)/sizeof(*powerUpPositions);i++) {
+		glm::mat4 powerUpMat = glm::mat4(1.0f);
+		powerUpMat = glm::translate(powerUpMat, glm::vec3(powerUpPositions[i]));
+		powerUpMat = glm::scale(powerUpMat, glm::vec3(0.02f, 0.02f, 0.02f));
+		powerUpShader.setMat4("model", powerUpMat);
+		myCubeModel.Draw(powerUpShader);
+		
+	}
+
+
+
+
 		// also draw the lamp object(s)
 		/*lampShader.use();
 		lampShader.setMat4("projection", projection);
@@ -474,16 +586,16 @@ int main()
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
 
-		 for (unsigned int i = 0; i < 8; i++)
+		 for (unsigned int i = 0; i < 2; i++)
 		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, boardPointLightPositions[i]);
+			model = glm::translate(model, powerUpLightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.02f)); // Make it a smaller cube
 			lampShader.setMat4("model", model);
 			myCubeModel.Draw(lampShader);
-		}*/
+		}
 
-
+		 */
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -519,26 +631,34 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) 
+		camera.Position = glm::vec3(cubePos.x, cubePos.y, camera.Position.z);
+		
+	
 	//move cube
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		cubePos.y += move_unit * deltaTime;
-		std::cout << cubePos.y << std::endl;
+		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_UP))
+			move_unit = move_unit * 1.5f;
+		//std::cout << move_unit << std::endl;
 		//move up
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
 		cubePos.y -= move_unit * deltaTime;
-		std::cout << cubePos.y << std::endl;
+		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_DOWN))
+			move_unit = move_unit * 1.5f;		//move down
+		std::cout << move_unit << std::endl;
 
-		//move down
 
 	}
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		cubePos.x -= move_unit * deltaTime;
-		std::cout << cubePos.x << std::endl;
+		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_LEFT))
+			move_unit = move_unit * 1.5f;
+		std::cout << move_unit << std::endl;
 
 		//move left
 
@@ -546,7 +666,9 @@ void processInput(GLFWwindow* window)
 
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		cubePos.x += move_unit * deltaTime;
-		std::cout << cubePos.x << std::endl;
+		if (collisionPowerUp(powerUpPositions,powerUpSize, (int)GLFW_KEY_RIGHT))
+			move_unit = move_unit *1.5f;
+		std::cout << move_unit << std::endl;
 
 		//move right
 
@@ -635,3 +757,4 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(yoffset);
 }
+
