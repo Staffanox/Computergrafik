@@ -27,9 +27,6 @@ bool checkXAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collis
 bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
 
 
-unsigned int loadTexture(const char *path);
-unsigned int loadCubemap(vector<std::string> faces);
-
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
@@ -111,13 +108,6 @@ bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[], un
 
 
 
-//normals
-bool showNormals = false;
-
-//collision
-bool collision = false;
-
-
 int main()
 {
 	// glfw: initialize and configure
@@ -169,89 +159,12 @@ int main()
 	Shader myCubeShader("cube.vs", "cube.fs");
 	Shader myBoardShader("vertex.vs", "fragment.fs");
 	Shader powerUpShader("powerUp.vs", "powerUp.fs");
-	Shader normalShader("normal_visualization.vs", "normal_visualization.fs", "normal_visualization.gs");
-	Shader skyboxShader("skybox.vs", "skybox.fs");
 
-	//load models
+	//model loading
 	Model myCubeModel("..\\Computergrafik\\models\\cube\\cube_fbx.fbx");
 	Model myBoardModel("..\\Computergrafik\\models\\board\\board.obj");
 
-	//SKYBOX
 
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
-
-	// skybox VAO
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	// load textures
-// -------------
-
-	vector<std::string> faces
-	{
-		"..\\Computergrafik\\skybox\\right.png",
-		"..\\Computergrafik\\skybox\\left.png",
-		"..\\Computergrafik\\skybox\\top.png",
-		"..\\Computergrafik\\skybox\\bottom.png",
-		"..\\Computergrafik\\skybox\\front.png",
-		"..\\Computergrafik\\skybox\\back.png"
-	};
-
-	unsigned int cubemapTexture = loadCubemap(faces);
-
-	skyboxShader.use();
-	skyboxShader.setInt("skybox", 0);
-
-	//SKYBOX END
 
 	glm::vec3 cubePointLightPositions[] = {
 			glm::vec3(0.0f, -1.1f, 0.0f),
@@ -283,9 +196,41 @@ int main()
 	glm::vec3 powerUpLightPositions[]{
 			glm::vec3(-0.86f, 0.429f, -0.05f),
 			glm::vec3(0.13f, -0.0f, -0.05f)
+
+
 	};
 
 
+	// load and create a texture 
+	// -------------------------
+	unsigned int texture1;
+	// texture 1
+	// ---------
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data = stbi_load(("..\\Dependencies\\resources\\container.jpg"), &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+	// -------------------------------------------------------------------------------------------
+	myBoardShader.setInt("texture1", 0);
 
 	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
 	unsigned int lightVAO;
@@ -296,10 +241,10 @@ int main()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
+
 	//Play background music during game
 	//engine->setSoundVolume(0.01f);
 	//engine->play2D(musicSrc, GL_TRUE);
-
 
 
 	// render loop
@@ -321,9 +266,15 @@ int main()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+
+
 		//board
 		// activate shader
 		myBoardShader.use();
+
 
 		// directional light
 		glm::vec3 boardDirectLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -345,6 +296,12 @@ int main()
 
 		glm::vec3 pulsatingGreenDiffuse = boardLightColor * glm::vec3(0.5f);
 		glm::vec3 pulsatingGreenAmbient = pulsatingGreenDiffuse * glm::vec3(0.0f);
+
+
+
+
+
+
 
 		myBoardShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
 
@@ -369,7 +326,6 @@ int main()
 		myBoardShader.setFloat("pointLights[0].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[0].quadratic", 1.8f);
 
-
 		myBoardShader.setVec3("pointLights[1].position", boardPointLightPositions[1]);
 		myBoardShader.setVec3("pointLights[1].ambient", pulsatingGreenAmbient);
 		myBoardShader.setVec3("pointLights[1].diffuse", pulsatingGreenDiffuse);
@@ -377,7 +333,6 @@ int main()
 		myBoardShader.setFloat("pointLights[1].constant", 1.0f);
 		myBoardShader.setFloat("pointLights[1].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[1].quadratic", 1.8f);
-
 
 		myBoardShader.setVec3("pointLights[2].position", boardPointLightPositions[2]);
 		myBoardShader.setVec3("pointLights[2].ambient", pulsatingGreenAmbient);
@@ -387,7 +342,6 @@ int main()
 		myBoardShader.setFloat("pointLights[2].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[2].quadratic", 1.8f);
 
-
 		myBoardShader.setVec3("pointLights[3].position", boardPointLightPositions[3]);
 		myBoardShader.setVec3("pointLights[3].ambient", pulsatingGreenAmbient);
 		myBoardShader.setVec3("pointLights[3].diffuse", pulsatingGreenDiffuse);
@@ -395,7 +349,6 @@ int main()
 		myBoardShader.setFloat("pointLights[3].constant", 1.0f);
 		myBoardShader.setFloat("pointLights[3].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[3].quadratic", 1.8f);
-
 
 		myBoardShader.setVec3("pointLights[4].position", boardPointLightPositions[4]);
 		myBoardShader.setVec3("pointLights[4].ambient", pulsatingGreenAmbient);
@@ -413,7 +366,6 @@ int main()
 		myBoardShader.setFloat("pointLights[5].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[5].quadratic", 1.8f);
 
-
 		myBoardShader.setVec3("pointLights[6].position", boardPointLightPositions[6]);
 		myBoardShader.setVec3("pointLights[6].ambient", pulsatingGreenAmbient);
 		myBoardShader.setVec3("pointLights[6].diffuse", pulsatingGreenDiffuse);
@@ -429,6 +381,7 @@ int main()
 		myBoardShader.setFloat("pointLights[7].constant", 1.0f);
 		myBoardShader.setFloat("pointLights[7].linear", 0.7f);
 		myBoardShader.setFloat("pointLights[7].quadratic", 1.8f);
+
 
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
@@ -475,6 +428,10 @@ int main()
 
 		cubePointLightPositions[5].x = cubePointLightPositions[2].x;
 		cubePointLightPositions[5].y = cubePointLightPositions[2].y;
+
+
+
+
 
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
@@ -569,6 +526,7 @@ int main()
 		myCubeModel.Draw(myCubeShader);
 
 		//cube end
+		//================================
 
 		//start goal
 		glm::mat4 goalMat = glm::mat4(1.0f);
@@ -619,36 +577,6 @@ int main()
 
 
 
-=======
-		//draw normals
-
-		if (showNormals) {
-			normalShader.use();
-			normalShader.setMat4("projection", projection);
-			normalShader.setMat4("view", view);
-			normalShader.setMat4("model", myCubeModelMat);
-
-			myCubeModel.Draw(normalShader);
-		}
-
-
-		//SKYBOX  -  MUST be last object of this while loop
-
-		// draw skybox as last
-		glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-		skyboxShader.use();
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-		skyboxShader.setMat4("view", view);
-		skyboxShader.setMat4("projection", projection);
-		// skybox cube
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); // set depth function back to default
-
-		//SKYBOX END
 
 		// also draw the lamp object(s)
 		/*lampShader.use();
@@ -657,16 +585,18 @@ int main()
 
 		// we now draw as many light bulbs as we have point lights.
 		glBindVertexArray(lightVAO);
-    
-		 for (unsigned int i = 0; i < 8; i++)
+
+		 for (unsigned int i = 0; i < 2; i++)
 		{
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, boardPointLightPositions[i]);
+			model = glm::translate(model, powerUpLightPositions[i]);
 			model = glm::scale(model, glm::vec3(0.02f)); // Make it a smaller cube
-
 			lampShader.setMat4("model", model);
 			myCubeModel.Draw(lampShader);
 		}
+
+		 */
+
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -677,8 +607,6 @@ int main()
 	// optional: de-allocate all resources once they've outlived their purpose:
 	// ------------------------------------------------------------------------
 	// not needed. will be done in model.h as well as the drawing
-	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &skyboxVAO);
 
 	//engine->drop();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
@@ -713,15 +641,6 @@ void processInput(GLFWwindow* window)
 		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_UP))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
-
-
-	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
-		showNormals = !showNormals;
-
-	//move cube
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-		cubePos.y += move_unit*deltaTime;
-		std::cout <<cubePos.y << std::endl;
 		//move up
 	}
 
@@ -730,6 +649,7 @@ void processInput(GLFWwindow* window)
 		if (collisionPowerUp(powerUpPositions, powerUpSize,(int)GLFW_KEY_DOWN))
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
+
 
 	}
 
@@ -740,7 +660,6 @@ void processInput(GLFWwindow* window)
 			move_unit = move_unit * 1.05f;
 		std::cout << move_unit << std::endl;
 
-
 		//move left
 
 	}
@@ -750,7 +669,6 @@ void processInput(GLFWwindow* window)
 		if (collisionPowerUp(powerUpPositions,powerUpSize, (int)GLFW_KEY_RIGHT))
 			move_unit = move_unit * 1.005f;
 		std::cout << move_unit << std::endl;
-
 
 		//move right
 
@@ -799,6 +717,9 @@ void processInput(GLFWwindow* window)
 
 	}
 }
+
+
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -865,82 +786,4 @@ bool checkYAxis(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collis
 
 	return false;
 
-=======
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-unsigned int loadTexture(char const* path)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}
-
-// loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
-
-unsigned int loadCubemap(vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrChannels;
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }

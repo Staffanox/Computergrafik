@@ -45,8 +45,7 @@ public:
         for(unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
-
-	
+    
 private:
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
