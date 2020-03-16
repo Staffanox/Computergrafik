@@ -54,10 +54,6 @@ public:
 		setupMesh();
 	}
 
-	vector<Vertex> getVertices() {
-		return vertices;
-	}
-
 	// render the mesh
 	void Draw(Shader shader)
 	{
