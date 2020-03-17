@@ -25,18 +25,16 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 bool collisionCheck(glm::vec3 cubePos, glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
 void collisionGoal(glm::vec3 collisionObject[], glm::vec3 collisionSize[]);
-
-bool checkBoardWithCubeCollision();
 double dotProduct(glm::vec3 objA, glm::vec3 objB);
 
-unsigned int loadTexture(const char *path);
+unsigned int loadTexture(const char* path);
 unsigned int loadCubemap(vector<std::string> faces);
 
 const char* musicSrc = "..\\Dependencies\\audio\\25_A_Tavern_on_the_Riverbank.mp3";
 
 // settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
 
 // camera
 Camera camera(glm::vec3(0.0f, -1.0f, 2.0f));
@@ -55,25 +53,26 @@ bool sprintPressed = false;
 Model myCubeModel;
 Model myBoardModel;
 
+double lowest = 10;
+
 //cube
 float move_unit = 0.3f;
-glm::vec3 cubePos = glm::vec3(-0.5599f, 0.0f, -0.1227f); 
+glm::vec3 cubePos = glm::vec3(-0.5599f, 0.0f, -0.1227f);
 glm::vec3 cubeSize = glm::vec3(0.0004f, 0.04f, 0.04f);
 glm::vec3 goalPos[] = { glm::vec3(0.633678f, 0.05703f, -0.1227f) };
 glm::vec3 goalSize[] = { glm::vec3(0.04f,0.02f,0.02f) };
 
-glm::vec3 powerUpPositions[]{glm::vec3(-0.86f, 0.429f, -0.15f),};
-glm::vec3 powerUpSize[]{glm::vec3(0.0004f,0.02f,0.02f),};
+glm::vec3 powerUpPositions[]{ glm::vec3(-0.86f, 0.429f, -0.15f), };
+glm::vec3 powerUpSize[]{ glm::vec3(0.0004f,0.02f,0.02f), };
 
 
 bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
+	if (collisionCheck(cubePos, collisionObject, collisionSize))
+		return true;
+	else
+		return false;
+}
 
-		if(collisionCheck(cubePos,collisionObject,collisionSize))
-			return true;
-		else
-			return false;
-	}
-	
 
 
 
@@ -81,7 +80,81 @@ bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
 bool showNormals = false;
 
 //collision
-bool collision = false;
+bool collisionXleft = false;
+bool collisionXright = false;
+bool collisionYtop = false;
+bool collisionYdown = false;
+
+
+/*returns false = no collision detected -- returns true = collision detected*/
+bool checkBoardWithCubeCollision(int GLFW_KEY_PRESSED) {
+	//std::cout << "--------------->is in method call now: " << endl;
+
+	for (unsigned int i = 0; i < (sizeof(myBoardModel.meshes)-1); i++) {
+
+		for (unsigned int x = 0; x < (sizeof(&myBoardModel.meshes[i].vertices)-1); x++) {
+			//std::cout << "meshPos x == " << myBoardModel.meshes[i].vertices[x].Position.x << " y == " << myBoardModel.meshes[i].vertices[x].Position.y << " [index=" << i << "/" << x << "]" << endl;
+
+			if (myBoardModel.meshes[i].vertices[x].Position.z > -0.0727f && myBoardModel.meshes[i].vertices[x].Position.z > 0.15f) {
+				//std::cout << "meshPos x == " << myBoardModel.meshes[i].vertices[x].Position.x << " y == " << myBoardModel.meshes[i].vertices[x].Position.y << " [index=" << i << "/" << x << "]" << endl;
+
+				//std::cout << "found pos with z > 0.0727" << endl;
+
+
+				//AB
+				glm::vec3 standartCubePos = cubePos - glm::vec3(-0.5599f, 0.0f, -0.1227f);
+				glm::vec3 standartWallPos = myBoardModel.meshes[i].vertices[x].Position - glm::vec3(0.0f, -2.0f, 0.0f);
+
+				glm::vec3 verbVektor = standartCubePos - standartWallPos;
+			//	double dist = (sqrt((verbVektor.x * verbVektor.x) + (verbVektor.y * (verbVektor.y)) + (verbVektor.z * verbVektor.z)))/10;
+				double dist = (sqrt(powf(standartWallPos.x - standartCubePos.x, 2) + powf(standartWallPos.y - standartCubePos.y, 2))) / 10;
+
+				//float dist = sqrtf(dot(verbVektor, verbVektor));
+
+				double min = -0.2;
+				double max = 0.2;
+				//std::cout << "distance d == " << dist << " by min/max == " << min << "/" << max << endl;
+
+				if (dist < lowest) {
+					lowest = dist;
+				}
+				//std::cout << "lowest == " << lowest << endl;
+				//std::cout << "distance now == " << dist << endl;
+
+
+				if (dist > min && dist < max) {
+
+					/*std::cout << "cubePos x == " << cubePos.x  << " y == " << cubePos.y << " z == " << cubePos.z << endl;
+					std::cout << "wallPos.z == " << myBoardModel.meshes[i].vertices[x].Position.z << endl;
+
+					std::cout << "meshLength == " << sizeof(myBoardModel.meshes) << endl;
+					std::cout << "vertLength == " << sizeof(myBoardModel.meshes[i].vertices) << endl;
+					std::cout << "posLength == " << sizeof(myBoardModel.meshes[i].vertices[x].Position) << endl;*/
+					//std::cout << "distance d == " << dist << " by min/max == " << min << "/" << max << endl;
+
+					if((standartCubePos.x - standartWallPos.x) )
+
+					collisionYtop = true;
+					return true;
+				}
+
+			}
+		}
+	}
+	
+	collisionXleft = false;
+	collisionXright = false;
+	collisionYtop = false;
+	collisionYdown = false;
+	lowest = 10;
+	std::cout << "false" << endl;
+
+	return false; //no collision detected
+}
+
+void evaluateCollision(glm::vec3 wallCoord) {
+	
+}
 
 
 int main()
@@ -633,51 +706,49 @@ void processInput(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
 		showNormals = !showNormals;
 
-	
-
 		//move cube
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-			if (!checkBoardWithCubeCollision) {
+			checkBoardWithCubeCollision(GLFW_KEY_UP);
+
+			if (!collisionYtop) {
 				cubePos.y += move_unit * deltaTime;
 				collisionGoal(goalPos, goalSize);
 				if (collisionPowerUp(powerUpPositions, powerUpSize))
 					move_unit = move_unit * 1.05f;
-				std::cout << move_unit << std::endl;
 				//move up
 			}
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-			if (!checkBoardWithCubeCollision) {
+			checkBoardWithCubeCollision(GLFW_KEY_DOWN);
+
 				cubePos.y -= move_unit * deltaTime;
 				collisionGoal(goalPos, goalSize);
 				if (collisionPowerUp(powerUpPositions, powerUpSize))
 					move_unit = move_unit * 1.05f;
-				std::cout << move_unit << std::endl;
-			}
+				//move down
 
 		}
 
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+			checkBoardWithCubeCollision(GLFW_KEY_LEFT);
+
 			cubePos.x -= move_unit * deltaTime;
 			collisionGoal(goalPos, goalSize);
 			if (collisionPowerUp(powerUpPositions, powerUpSize))
 				move_unit = move_unit * 1.05f;
-			std::cout << move_unit << std::endl;
-
 			//move left
 
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+			checkBoardWithCubeCollision(GLFW_KEY_RIGHT);
 
 			cubePos.x += move_unit * deltaTime;
 			collisionGoal(goalPos, goalSize);
 			if (collisionPowerUp(powerUpPositions, powerUpSize))
 				move_unit = move_unit * 1.005f;
-			std::cout << move_unit << std::endl;
-
 			//move right
 
 		}
@@ -700,27 +771,23 @@ void processInput(GLFWwindow* window)
 			else {
 				move_unit = 0.01f;
 			}
-			//std::cout << move_unit << std::endl;
 		}
 		//reset to normal speed after release
 		if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE) && (sprintPressed == true)) {
 			//speed after sprint (recovery)
 			if (((float)glfwGetTime() >= sprintTime + 1.0f)) {
 				move_unit = 0.05f;
-				//std::cout << move_unit << std::endl;
 
 				if ((float)glfwGetTime() >= sprintTime + 6.5f) {
 					sprintPressed = false;
 					move_unit = 0.1f;
 					sprintTime = 0.0f;
 					currentSprintTime = 0.0f;
-					//std::cout << move_unit << std::endl;
 
 				}
 			}
 			else {
 				move_unit = 0.1f;
-				//std::cout << move_unit << std::endl;
 
 			}
 
@@ -785,50 +852,7 @@ void collisionGoal(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
 
 }
 
-/*returns false = no collision detected -- returns true = collision detected*/
-bool checkBoardWithCubeCollision() {
 
-	for (int i = 0; i < sizeof(myBoardModel.meshes); i++) {
-		for (int x = 0; x < sizeof(myBoardModel.meshes[i].vertices); x++) {
-			if (myBoardModel.meshes[i].vertices[x].Position.z > -0.0727f) {
-				bool collX = myBoardModel.meshes[i].vertices[x].Position.x + 0.02f >= cubePos.x &&
-					cubePos.x + 0.02f >= myBoardModel.meshes[i].vertices[x].Position.x;
-
-				bool collY = myBoardModel.meshes[i].vertices[x].Position.y + 0.02f >= cubePos.y &&
-					cubePos.y + 0.02f >= myBoardModel.meshes[i].vertices[x].Position.y;
-
-				return collX && collY;
-			}
-		}
-	}
-
-	//for loop, for each position of board
-	double dotprod;
-
-	/*for (int i = 0; i < sizeof(myBoardModel.meshes); i++) {
-		for (int x = 0; x < sizeof(myBoardModel.meshes[i].vertices); x++) {
-			if (myBoardModel.meshes[i].vertices[x].Position.z > -0.0727f) {
-
-				glm::vec3 distance = glm::vec3(calcCubePos - myBoardModel.meshes[i].vertices[x].Position);
-
-				if (distance.x < -0.2 || distance.x > 0.2 ||
-					distance.y < -0.2 || distance.y > 0.2) {
-					return true;
-				}*/
-
-			/*	dotprod = dotProduct(calcCubePos, myBoardModel.meshes[i].vertices[x].Position);
-				if (dotprod > 0.2 || dotprod < -0.2) {
-					std::cout << "true" << endl;
-					return true;
-				}*/
-		//	}
-	//	}
-	//}
-		
-	std::cout << "false" << endl;
-
-	return false; //no collision detected
-}
 
 double dotProduct(glm::vec3 objA, glm::vec3 objB) {
 	return objA.x * objB.x + objA.y * objB.y + objA.z * objB.z;
