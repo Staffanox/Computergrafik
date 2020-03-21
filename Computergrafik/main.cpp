@@ -11,10 +11,14 @@
 #include <conio.h>
 #include <iostream>
 #include <stdio.h>
+#include <math.h>
 #include <irrKlang.h>
 #include <filesystem>
 
 using namespace irrklang;
+
+#define _USE_MATH_DEFINES
+
 
 #pragma comment(lib, "irrKlang.lib") // link with irrKlang.dll
 
@@ -41,6 +45,7 @@ Camera camera(glm::vec3(0.0f, -1.0f, 2.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+const glm::vec3 constCamera = glm::vec3(0.0f, -1.0f, 2.0f);
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -74,73 +79,113 @@ bool collisionPowerUp(glm::vec3 collisionObject[], glm::vec3 collisionSize[]) {
 }
 
 
-
-
-//normals
-bool showNormals = false;
-
 //collision
 bool collisionXleft = false;
 bool collisionXright = false;
 bool collisionYtop = false;
 bool collisionYdown = false;
 
+void doBlock(int GLFW_KEY_PRESSED) {
 
-/*returns false = no collision detected -- returns true = collision detected*/
-bool checkBoardWithCubeCollision(int GLFW_KEY_PRESSED) {
-	//std::cout << "--------------->is in method call now: " << endl;
+	switch (GLFW_KEY_PRESSED) {
 
-	for (unsigned int i = 0; i < (sizeof(myBoardModel.meshes)-1); i++) {
+	case(GLFW_KEY_UP):
+		collisionYtop = true;
+		std::cout << " UP " << endl;
+		break;
 
-		for (unsigned int x = 0; x < (sizeof(&myBoardModel.meshes[i].vertices)-1); x++) {
-			//std::cout << "meshPos x == " << myBoardModel.meshes[i].vertices[x].Position.x << " y == " << myBoardModel.meshes[i].vertices[x].Position.y << " [index=" << i << "/" << x << "]" << endl;
+	case(GLFW_KEY_LEFT):
+		collisionXleft = true;
+		std::cout << " LEFT " << endl;
+		break;
 
-			if (myBoardModel.meshes[i].vertices[x].Position.z > -0.0727f && myBoardModel.meshes[i].vertices[x].Position.z > 0.15f) {
-				//std::cout << "meshPos x == " << myBoardModel.meshes[i].vertices[x].Position.x << " y == " << myBoardModel.meshes[i].vertices[x].Position.y << " [index=" << i << "/" << x << "]" << endl;
+	case(GLFW_KEY_RIGHT):
+		collisionXright = true;
+		std::cout << " RIGHT " << endl;
+		break;
 
-				//std::cout << "found pos with z > 0.0727" << endl;
+	case(GLFW_KEY_DOWN):
+		collisionYdown = true;
+		std::cout << " DOWN " << endl;
+		break;
+	}
+
+}
 
 
-				//AB
-				glm::vec3 standartCubePos = cubePos - glm::vec3(-0.5599f, 0.0f, -0.1227f);
-				glm::vec3 standartWallPos = myBoardModel.meshes[i].vertices[x].Position - glm::vec3(0.0f, -2.0f, 0.0f);
+//normals
+bool showNormals = false;
 
-				glm::vec3 verbVektor = standartCubePos - standartWallPos;
-			//	double dist = (sqrt((verbVektor.x * verbVektor.x) + (verbVektor.y * (verbVektor.y)) + (verbVektor.z * verbVektor.z)))/10;
-				double dist = (sqrt(powf(standartWallPos.x - standartCubePos.x, 2) + powf(standartWallPos.y - standartCubePos.y, 2))) / 10;
+bool cubeIntersection(int GLFW_KEY_PRESSED) {
 
-				//float dist = sqrtf(dot(verbVektor, verbVektor));
+	/*for (const auto& mesh : myBoardModel.meshes) {
+		//std::cout << " new mesh " << endl;
+		//std::cout << " size of meshes: " << sizeof(myBoardModel.meshes) << endl;
+		//std::cout << " cube: " << cubePos.x << "/" << cubePos.y << endl;
 
-				double min = -0.2;
-				double max = 0.2;
-				//std::cout << "distance d == " << dist << " by min/max == " << min << "/" << max << endl;
+		for (const auto& vertex : mesh.vertices) {
 
-				if (dist < lowest) {
-					lowest = dist;
+			//std::cout << " x: " << vertex.Position.x << " y: " << vertex.Position.y << endl;
+			std::cout << " size of vertices: " << sizeof(mesh.vertices) << endl;
+
+		}
+	}*/
+
+
+	for (const auto& mesh : myBoardModel.meshes) {
+		for (const auto& vertex : mesh.vertices) {
+
+			//if (vertex.Position.z > -0.0700f) {
+
+				glm::vec3 cubeFromCam = (cubePos - constCamera);
+				glm::vec3 boardFromCam = (vertex.Position - constCamera);
+
+				float angle = atan2(cubeFromCam.y, cubeFromCam.x) - atan2(boardFromCam.y, boardFromCam.x);
+				angle = angle / 3.14159265358979323846 * 180;
+
+				if (angle < 0.2 && angle > -0.2) {
+					/*std::cout << " cube: " << cubePos.x << "/" << cubePos.y << endl;
+					std::cout << " vertex: " << vertex.Position.x << "/" << vertex.Position.y << endl;
+					std::cout << " = angle: " << angle << endl;*/
+
+					//Wenn man bspw. nicht weiter in richtung +X moven kann, anschließend nach -Y moven möchte, wird automatisch doBlock ausgeführt, da der Winkel immernoch zwischen -0.2 und 0.2 bleibt.
+					float difX = cubeFromCam.x - boardFromCam.x;
+
+					if (difX <= 0.3 && difX >= -0.3) {
+						if (GLFW_KEY_PRESSED == GLFW_KEY_UP || GLFW_KEY_PRESSED == GLFW_KEY_DOWN) {
+							doBlock(GLFW_KEY_PRESSED);
+							std::cout << " blocked " << endl;
+
+							return true;
+						}
+					}
+
+					float difY = cubeFromCam.y - boardFromCam.y;
+
+					if (difY <= 0.3 && difY >= -0.3) {
+						if (GLFW_KEY_PRESSED == GLFW_KEY_LEFT || GLFW_KEY_PRESSED == GLFW_KEY_RIGHT) {
+							doBlock(GLFW_KEY_PRESSED);
+							std::cout << " blocked " << endl;
+
+							return true;
+						}
+					}
 				}
-				//std::cout << "lowest == " << lowest << endl;
-				//std::cout << "distance now == " << dist << endl;
-
-
-				if (dist > min && dist < max) {
-
-					/*std::cout << "cubePos x == " << cubePos.x  << " y == " << cubePos.y << " z == " << cubePos.z << endl;
-					std::cout << "wallPos.z == " << myBoardModel.meshes[i].vertices[x].Position.z << endl;
-
-					std::cout << "meshLength == " << sizeof(myBoardModel.meshes) << endl;
-					std::cout << "vertLength == " << sizeof(myBoardModel.meshes[i].vertices) << endl;
-					std::cout << "posLength == " << sizeof(myBoardModel.meshes[i].vertices[x].Position) << endl;*/
-					//std::cout << "distance d == " << dist << " by min/max == " << min << "/" << max << endl;
-
-					if((standartCubePos.x - standartWallPos.x) )
-
-					collisionYtop = true;
-					return true;
-				}
-
-			}
 		}
 	}
+	
+	collisionXleft = false;
+	collisionXright = false;
+	collisionYtop = false;
+	collisionYdown = false;
+	return false;
+
+}
+
+/*returns false = no collision detected -- returns true = collision detected*/
+bool checkdBoardWithCubeCollision(int GLFW_KEY_PRESSED) {
+		
+
 	
 	collisionXleft = false;
 	collisionXright = false;
@@ -152,10 +197,8 @@ bool checkBoardWithCubeCollision(int GLFW_KEY_PRESSED) {
 	return false; //no collision detected
 }
 
-void evaluateCollision(glm::vec3 wallCoord) {
-	
-}
 
+//Particles
 
 int main()
 {
@@ -612,7 +655,6 @@ int main()
 		cubeLightingShader.setMat4("model", goalMat);
 		myCubeModel.Draw(cubeLightingShader);
 
-
 		//draw normals
 
 		if (showNormals) {
@@ -621,7 +663,7 @@ int main()
 			normalShader.setMat4("view", view);
 			normalShader.setMat4("model", boardModelMat);
 
-			myCubeModel.Draw(normalShader);
+			myBoardModel.Draw(normalShader);
 
 
 		}
@@ -708,8 +750,7 @@ void processInput(GLFWwindow* window)
 
 		//move cube
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-			checkBoardWithCubeCollision(GLFW_KEY_UP);
-
+		
 			if (!collisionYtop) {
 				cubePos.y += move_unit * deltaTime;
 				collisionGoal(goalPos, goalSize);
@@ -717,40 +758,43 @@ void processInput(GLFWwindow* window)
 					move_unit = move_unit * 1.05f;
 				//move up
 			}
+			cubeIntersection(GLFW_KEY_UP);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-			checkBoardWithCubeCollision(GLFW_KEY_DOWN);
 
+			if(!collisionYdown){
 				cubePos.y -= move_unit * deltaTime;
 				collisionGoal(goalPos, goalSize);
 				if (collisionPowerUp(powerUpPositions, powerUpSize))
 					move_unit = move_unit * 1.05f;
 				//move down
-
+			}
+			cubeIntersection(GLFW_KEY_DOWN);
 		}
 
 
 		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-			checkBoardWithCubeCollision(GLFW_KEY_LEFT);
-
+			if (!collisionXleft) {
+			
 			cubePos.x -= move_unit * deltaTime;
 			collisionGoal(goalPos, goalSize);
 			if (collisionPowerUp(powerUpPositions, powerUpSize))
 				move_unit = move_unit * 1.05f;
 			//move left
-
+			}
+			cubeIntersection(GLFW_KEY_LEFT);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-			checkBoardWithCubeCollision(GLFW_KEY_RIGHT);
-
+			if (!collisionXright) {
 			cubePos.x += move_unit * deltaTime;
 			collisionGoal(goalPos, goalSize);
 			if (collisionPowerUp(powerUpPositions, powerUpSize))
 				move_unit = move_unit * 1.005f;
 			//move right
-
+			}
+			cubeIntersection(GLFW_KEY_RIGHT);
 		}
 
 		//speed button for cube
@@ -769,7 +813,7 @@ void processInput(GLFWwindow* window)
 			}
 			//speed after sprint (fatigue)
 			else {
-				move_unit = 0.01f;
+				move_unit = 0.3f;
 			}
 		}
 		//reset to normal speed after release
